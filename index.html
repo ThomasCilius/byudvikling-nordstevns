@@ -293,6 +293,23 @@ code{font:12px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;background:var(--
 .hidden{display:none}
 .leaflet-interactive.hl{filter:drop-shadow(0 0 6px var(--focus))}
 @media (prefers-reduced-motion:reduce){.leaflet-zoom-anim .leaflet-zoom-animated{transition:none!important}}
+
+/* Marina vision gallery */
+#marina-vision{box-sizing:border-box;width:min(1120px,94vw);max-width:94vw;max-height:94dvh;padding:22px;border:1px solid var(--line);background:var(--paper);color:var(--ink);overflow:auto;font-family:Archivo,system-ui,sans-serif}
+#marina-vision::backdrop{background:rgba(12,24,28,.8)}
+#marina-vision .vision-header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:16px}
+#marina-vision small{font-size:11px;letter-spacing:.12em;color:var(--ink-2)}
+#marina-vision h2{margin:7px 0 0;font-size:clamp(22px,3vw,32px);line-height:1.15}
+#marina-vision figure{margin:0}
+#marina-vision img{display:block;width:100%;height:auto;max-height:62dvh;object-fit:contain;background:var(--sea)}
+#marina-vision figcaption{margin:12px 0;line-height:1.5;font-size:14px}
+#marina-vision button,.vision-open{font:inherit;cursor:pointer;border:1px solid var(--ink-2);background:var(--panel);color:var(--ink);padding:11px 15px;min-height:44px}
+#marina-vision button:focus-visible,.vision-open:focus-visible{outline:3px solid var(--prom);outline-offset:3px}
+.vision-open{display:block;margin-top:12px;width:100%;font-size:14px}
+#marina-vision .vision-controls{display:flex;align-items:center;justify-content:space-between;gap:12px}
+#marina-vision .vision-note{font-size:12px;line-height:1.5;color:var(--ink-2);margin:16px 0 0}
+@media(max-width:600px){#marina-vision{padding:14px;width:96vw;max-width:96vw}#marina-vision .vision-header{gap:8px}#marina-vision button{padding:10px}}
+
 </style>
 
 <div class="app">
@@ -746,13 +763,13 @@ paintBase();
 
 /* labels */
 const lblLayer=L.layerGroup().addTo(map);
-function label(p,txt,cls,off){return L.marker(p,{pane:'lbl',interactive:false,icon:L.divIcon({className:'',html:`<div class="lbl ${cls||''}" style="transform:translate(${off?off[0]:-50}%,${off?off[1]:-50}%)">${txt}</div>`,iconSize:[0,0]})}).addTo(lblLayer);}
+function label(p,txt,cls,off,interactive=false){return L.marker(p,{pane:'lbl',interactive,icon:L.divIcon({className:'',html:`<div class="lbl ${cls||''}" style="transform:translate(${off?off[0]:-50}%,${off?off[1]:-50}%)">${txt}</div>`,iconSize:[0,0]})}).addTo(lblLayer);}
 [['Strøby Egede',[55.4145,12.2470],'place'],['Strøby',[55.3833,12.2829],'place'],['Valløby',[55.4003,12.2322],'place'],['Køge',[55.4565,12.1819],'place'],['Herfølge',[55.4138,12.1412],'place'],['Strøby Ladeplads',[55.4007,12.2998],'place'],['Vallø Strand',[55.4224,12.2277],'place'],['Nicolinelund',[55.4062,12.2586],'place'],['Vedskølle',[55.4062,12.1773],'place'],
  ['Køge Bugt',[55.4300,12.2650],'water'],['Tryggevælde Å',[55.4075,12.2455],'water'],['Tryggevælde Ådal',[55.3920,12.2480],'water'],
  ['Stevnsvej · rute 261',[55.4125,12.2440],'road'],['Kystvejen',[55.4110,12.2650],'road'],['Køgevej · rute 209',[55.4120,12.2290],'road'],['Strandvejen',[55.4380,12.2020],'road'],['Lendrumvej',[55.4060,12.2705],'road'],['Hybenrosevej',[55.4080,12.2580],'road'],['Valnøddevej',[55.4105,12.2515],'road'],['Bakkegårdsvej',[55.4108,12.2425],'road'],['E47 · Sydmotorvejen',[55.4300,12.1150],'road'],
 ].forEach(l=>label(l[1],l[0],l[2]));
 const POI=[[PT.school,'Strøbyskolen','school'],[PT.elle,'Ellehallen (Ellevej 2) · kulturhus/medborgerhus fra 7.500','hall'],[[55.4032,12.2640],'Strøbyhallen · idræt, udbygget med café fra 7.500','hall'],[PT.ege,'Bådklubben Ege','marina'],[PT.center,'Strøby Egede Center','shop'],[PT.egehaven,'Egehaven (plejecenter)','care'],[PT.prambro,'Prambroen','bridge'],[PT.kogeSt,'Køge Station','station'],[PT.egojeSt,'Egøje St.','station'],[PT.e47,'E47 afkørsel 34 Herfølge','station']];
-POI.forEach(p=>{const ic={school:'school',hall:'hall',marina:'marina',shop:'shop',care:'care',bridge:'bridge',station:'station'}[p[2]];L.marker(p[0],{pane:'sym',icon:L.divIcon({className:'sym',html:SYM[ic](),iconSize:[22,22],iconAnchor:[11,11]})}).bindTooltip(p[1]).addTo(lblLayer);label([p[0][0]-0.00028,p[0][1]],p[1].split(' · ')[0],'poi',[-50,0]);});
+POI.forEach(p=>{const ic={school:'school',hall:'hall',marina:'marina',shop:'shop',care:'care',bridge:'bridge',station:'station'}[p[2]];const marker=L.marker(p[0],{pane:'sym',title:p[1],icon:L.divIcon({className:'sym',html:SYM[ic](),iconSize:[22,22],iconAnchor:[11,11]})}).bindTooltip(p[1]).addTo(lblLayer);if(p[2]==='marina')marker.on('click',()=>openMarinaVision());const poiLabel=label([p[0][0]-0.00028,p[0][1]],p[1].split(' · ')[0],'poi',[-50,0],p[2]==='marina');if(p[2]==='marina'&&poiLabel)poiLabel.on('click',()=>openMarinaVision());});
 
 /* zoom-class for label density */
 function zoomClass(){const z=map.getZoom();const c=map.getContainer();c.classList.toggle('z-xlo',z<12);c.classList.toggle('z-lo',z<13);c.classList.toggle('z-mid',z>=13&&z<14.25);}
@@ -831,6 +848,7 @@ function drawMeasures(){
       if(m.geo.rest)REST.forEach(r=>L.geoJSON(r.geom,{renderer:R('areas'),style:{color:css('--area'),weight:2,dashArray:'6 4',fillColor:css('--area'),fillOpacity:.25}}).bindPopup(`<h4>${r.nr} ${r.navn}</h4><p style="margin:4px 0 0">Kommuneplanramme til boliger, ${r.ha} ha, ${r.zone==='Landzone'?'landzone (overføres ved lokalplan)':'byzone'}. Del af Strøby Egedes restrummelighed på 11,0 ha (Kommuneplan 2025).</p>`).addTo(areaLayer));
     }
     const mk=L.marker(m.at,{pane:'sym',icon:L.divIcon({className:'sym',html:SYM[m.sym](),iconSize:[24,24],iconAnchor:[12,12]})}).bindPopup(popupMeasure(m),{maxWidth:340}).addTo(symLayer);
+    if(m.id==='marina'||m.id==='havnehus')mk.on('click',()=>{map.closePopup();openMarinaVision(m.id==='havnehus'?1:0);});
     m._mk=mk;
   });
   if(scen==='k10'){drawEtape(ETAPE['E6'],false);drawEtape(ETAPE['E7'],false);}
@@ -839,7 +857,7 @@ function drawMeasures(){
   if(scen==='k75'||scen==='k10'){[PT.prambro,[55.4000,12.2632]].forEach(p=>L.marker([p[0]+0.0006,p[1]],{pane:'sym',icon:L.divIcon({className:'sym',html:SYM.byport(),iconSize:[24,24],iconAnchor:[12,12]})}).bindTooltip('Byport: overgang til bygade 40 km/t').addTo(symLayer));
     L.marker(PT.bypassRiver,{pane:'sym',icon:L.divIcon({className:'sym',html:SYM.bridge(),iconSize:[24,24],iconAnchor:[12,12]})}).bindTooltip('Landskabsbro over Tryggevælde Ådal (Natura 2000) - forudsætning efter 2013-afgørelsen').addTo(symLayer);}
 }
-function popupMeasure(m){return `<h4>${m.t}</h4><p style="margin:4px 0 0">${m.e}</p>${m.d?`<p style="margin:8px 0 0;color:var(--ink-2)">${m.d}</p>`:''}`;}
+function popupMeasure(m){return `<h4>${m.t}</h4><p style="margin:4px 0 0">${m.e}</p>${m.d?`<p style="margin:8px 0 0;color:var(--ink-2)">${m.d}</p>`:''}${m.id==='marina'||m.id==='havnehus'?marinaVisionButton():''}`;}
 
 
 /* ---------- boligetaper, rammer og bindinger ---------- */
@@ -944,7 +962,7 @@ function drawStructure(){
   L.polyline(STRU.aadalssti,{renderer:R('net'),color:css('--cycle'),weight:4,dashArray:'2 8',lineCap:'round'}).bindTooltip('Ådalsstien: cykel-/gangsti fra Strøbyskolen over landskabsbroen til Valløby - naturparkens rygrad',{sticky:true}).addTo(structLayer);
   // noder
   const icon={kultur:'kultur',rest:'rest',center:'shop',kyst:'marina',pr:'pr',park:'park',natur:'park'};
-  STRU.noder.forEach(n=>{L.marker(n.p,{pane:'sym',icon:L.divIcon({className:'sym',html:SYM[icon[n.kind]](),iconSize:[24,24],iconAnchor:[12,12]})}).bindPopup(`<h4>${n.name}</h4><p style="margin:4px 0 0">${n.t}</p>`,{maxWidth:320}).addTo(structLayer);lblAt([n.p[0]-0.0004,n.p[1]],n.name.split(' - ')[0],'node '+n.kind).addTo(structLayer);});
+  STRU.noder.forEach(n=>{L.marker(n.p,{pane:'sym',icon:L.divIcon({className:'sym',html:SYM[icon[n.kind]](),iconSize:[24,24],iconAnchor:[12,12]})}).bindPopup(`<h4>${n.name}</h4><p style="margin:4px 0 0">${n.t}</p>${n.id==='havnehus'?marinaVisionButton():''}`,{maxWidth:320}).addTo(structLayer);lblAt([n.p[0]-0.0004,n.p[1]],n.name.split(' - ')[0],'node '+n.kind).addTo(structLayer);});
 }
 
 
@@ -1005,7 +1023,7 @@ function drawBuiltArea(id,geom,col,label,popup){
 }
 function drawMarina(){
   const M=STRU.marina; if(!M)return;
-  L.polygon(M.basin,{renderer:R('areas'),color:css('--prom'),weight:1,fillColor:css('--water'),fillOpacity:1}).bindPopup('<h4>Marina ved Bådklubben Ege - 600 både</h4><p style="margin:4px 0 0">Havnebassin bag moler, der bygger videre på kystsikringens hårde mole (kombinationsløsning). Havnehuset med restaurant og sejlerskole på land, aktivitetsbroen mod øst. Kræver tilladelse fra Kystdirektoratet, dispensation fra strandbeskyttelseslinjen og forenelighed med fredningsforslaget for Køge Bugt.</p>',{maxWidth:340}).addTo(builtLayer);
+  L.polygon(M.basin,{renderer:R('areas'),color:css('--prom'),weight:1,fillColor:css('--water'),fillOpacity:1}).on('click',()=>openMarinaVision()).addTo(builtLayer);
   M.moles.forEach(m=>L.polyline(m,{renderer:R('net'),color:css('--ink-2'),weight:7,lineCap:'round',interactive:false}).addTo(builtLayer));
   M.moles.forEach(m=>L.polyline(m,{renderer:R('net'),color:'#E9E4D6',weight:3.5,lineCap:'round',interactive:false}).addTo(builtLayer));
   M.pontoons.forEach(p=>L.polyline(p,{renderer:R('net'),color:'#F2EFE6',weight:2.5,lineCap:'round',interactive:false}).addTo(builtLayer));
@@ -1220,6 +1238,39 @@ new MutationObserver(rethem).observe(document.documentElement,{attributes:true,a
 map.setView(VIEWS.town.c,VIEWS.town.z-(map.getContainer().clientWidth<600?0.75:0));
 zoomClass();drawExisting();existVisibility();renderAttn();renderLegend();renderHousing();renderStructure();renderCheck();update();
 })();
+
+/* ---------- marina vision gallery ---------- */
+function openMarinaVision(start=0){
+  let dialog=document.getElementById('marina-vision');
+  if(!dialog){
+    dialog=document.createElement('dialog');dialog.id='marina-vision';
+    dialog.setAttribute('aria-labelledby','marina-vision-title');
+    dialog.innerHTML=`<div class="vision-header"><div><small>STRØBY EGEDE · BÅDKLUBBEN EGE</small><h2 id="marina-vision-title">En sommerdag ved marinaen</h2></div><button type="button" data-close aria-label="Luk visionsbilleder">Luk ×</button></div><figure><img alt="" width="1536" height="1024"><figcaption aria-live="polite"></figcaption></figure><div class="vision-controls"><button type="button" data-prev aria-label="Forrige billede">← Forrige</button><span data-count></span><button type="button" data-next aria-label="Næste billede">Næste →</button></div><p class="vision-note">AI-genererede visionsbilleder af en marina med 600 både, vinterbadeklub, cablepark og en ny sandstrand 20-30 meter ud fra den nuværende kyst. Illustrativ arkitektur og kyst, ikke en opmålt projekttegning eller en vedtaget plan. Stedreference: <a href="https://baadklubben-ege.dk/cms/Gallery.aspx#Dronefoto_Kajak_2025" target="_blank" rel="noopener noreferrer">Bådklubben Eges dronegalleri, 2025</a>.</p>`;
+    document.body.appendChild(dialog);
+    dialog.querySelector('[data-close]').onclick=()=>dialog.close();
+    dialog.querySelector('[data-prev]').onclick=()=>show(-1);
+    dialog.querySelector('[data-next]').onclick=()=>show(1);
+    dialog.addEventListener('click',e=>{if(e.target===dialog){const r=dialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)dialog.close();}});
+    dialog.addEventListener('keydown',e=>{if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();show(e.key==='ArrowLeft'?-1:1);}});
+    dialog.addEventListener('close',()=>{document.body.style.overflow=dialog._overflow;dialog._opener?.focus();});
+  }
+  const scenes=[
+    ['marina-sommer-overblik.png','Marinaen og kystbyen','Sommerudsigt over den foreslåede marina med bådebroer, stenmoler og Strøby Egede bag kysten.'],
+    ['marina-sommer-klubhus.png','Havnehuset helt ude i vandet','Café og restaurant i et nordisk klubhus med egetræ, sten, stål og ensidigt hældende sedumtag.'],
+    ['marina-sommer-vandsport.png','Et fælles liv ved vandet','Vinterbadeklub med sauna, cablepark, kajakker, surf og optimistsejlads ved den nye sandstrand.']
+  ];
+  function show(delta){
+    dialog._index=(dialog._index+delta+scenes.length)%scenes.length;
+    const [file,title,description]=scenes[dialog._index];
+    const base=location.pathname.startsWith('/kommunalpolitik/')?'/kommunalpolitik/byudviklingnord/images/':'images/';
+    const img=dialog.querySelector('img');img.src=base+file;img.alt=description;
+    dialog.querySelector('figcaption').textContent=title+' · '+description;
+    dialog.querySelector('[data-count]').textContent=(dialog._index+1)+' / '+scenes.length;
+  }
+  dialog._index=start;show(0);
+  if(!dialog.open){dialog._opener=document.activeElement;dialog._overflow=document.body.style.overflow;document.body.style.overflow='hidden';dialog.showModal();}
+}
+function marinaVisionButton(){return '<button type="button" class="vision-open" onclick="openMarinaVision()">Se marinaens visionsbilleder →</button>';}
 
 </script>
 </body>
