@@ -279,7 +279,8 @@ const SYM={
  tunnel:(c)=>`<svg viewBox="0 0 24 24" width="20" height="20"><circle cx="12" cy="12" r="10" fill="#0F8577" stroke="#fff" stroke-width="1.5"/><path d="M6 17v-3a6 6 0 0 1 12 0v3" stroke="#fff" stroke-width="2.4" fill="none"/><path d="M4 17h16" stroke="#fff" stroke-width="2"/><circle cx="12" cy="13" r="1.6" fill="#fff"/></svg>`,
  haevet:(c)=>`<svg viewBox="0 0 24 24" width="18" height="18"><rect x="2" y="2" width="20" height="20" rx="4" fill="#0F8577" stroke="#fff" stroke-width="1.5"/><path d="M5 15h14M7 11h10M9 7h6" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>`,
  luk:(c)=>`<svg viewBox="0 0 24 24" width="26" height="26"><circle cx="12" cy="12" r="11" fill="#C22F27" stroke="#fff" stroke-width="1.5"/><rect x="5" y="10" width="14" height="4" rx="1" fill="#fff"/></svg>`,
- station:(c)=>`<svg viewBox="0 0 24 24" width="22" height="22"><rect x="2" y="2" width="20" height="20" rx="4" fill="#1B1F1E" stroke="#fff" stroke-width="1.5"/><rect x="7" y="6" width="10" height="9" rx="2" fill="#fff"/><circle cx="9" cy="17" r="1.5" fill="#fff"/><circle cx="15" cy="17" r="1.5" fill="#fff"/></svg>`
+ station:(c)=>`<svg viewBox="0 0 24 24" width="22" height="22"><rect x="2" y="2" width="20" height="20" rx="4" fill="#1B1F1E" stroke="#fff" stroke-width="1.5"/><rect x="7" y="6" width="10" height="9" rx="2" fill="#fff"/><circle cx="9" cy="17" r="1.5" fill="#fff"/><circle cx="15" cy="17" r="1.5" fill="#fff"/></svg>`,
+ shelter:(c)=>`<svg viewBox="0 0 24 24" width="22" height="22"><circle cx="12" cy="12" r="11" fill="#2F6B3A" stroke="#fff" stroke-width="1.5"/><path d="M5 17l7-9 7 9z" fill="none" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"/><path d="M11 17c-1-2 0-3 1-4 1 1 2 2 1 4z" fill="#fff"/></svg>`
 };
 
 /* ---------- map ---------- */
@@ -433,7 +434,7 @@ function drawEtape(e,active){
   const lab=L.marker([e.label[1],e.label[0]],{pane:'lbl',interactive:false,icon:L.divIcon({className:'',html:`<div class="lbl eta ${e.stage}" style="transform:translate(-50%,-50%);${active?'':'opacity:.7'}">${e.id} · ${Math.round(e.ha)} ha<small>${e.stage==='res'?'reserve efter 10.000 · Sydskoven':(active?'':'kommende · ')+'ca. '+e.homes+' boliger'}</small></div>`,iconSize:[0,0]})}).addTo(areaLayer);
   e._g=g; return g;
 }
-const bindLayer=L.layerGroup(), rammeLayer=L.layerGroup(), cykLayer=L.layerGroup();
+const bindLayer=L.layerGroup(), rammeLayer=L.layerGroup(), cykLayer=L.layerGroup(), natLayer=L.layerGroup();
 function drawCyk(){
   cykLayer.clearLayers(); const C=STRU.cyclenet; const col=css('--cycle');
   (C.local||[]).forEach(c=>L.polyline(c,{renderer:R('net'),color:col,weight:1.5,dashArray:'2 4',opacity:.8,interactive:false}).addTo(cykLayer));
@@ -456,6 +457,14 @@ function drawBind(){
   add(C.kirke,{color:'#8A2E6B',weight:1.5,dashArray:'6 4',fillColor:'#8A2E6B',fillOpacity:.10},'Kirkebyggelinje, 300 m om Strøby Kirke (§ 19)');
   add(C.fred,{color:'#8A2E6B',weight:2,fillColor:'#8A2E6B',fillOpacity:.15},'Fredet område');
   add(C.bnbo,{color:'#1F44B8',weight:1.5,fillColor:'#1F44B8',fillOpacity:.15},'Boringsnært beskyttelsesområde (BNBO) - drikkevand');
+}
+const FRILU_ICON={naturbase:'park',spejder:'shelter',skovskole:'park'};
+function drawFrilu(){
+  natLayer.clearLayers();
+  (STRU.friluft||[]).forEach(n=>{
+    L.marker(n.p,{pane:'sym',icon:L.divIcon({className:'sym',html:SYM[FRILU_ICON[n.kind]](),iconSize:[24,24],iconAnchor:[12,12]})}).bindPopup(`<h4>${n.name}</h4><p style="margin:4px 0 0">${n.t}</p>`,{maxWidth:340}).addTo(natLayer);
+    lblAt([n.p[0]-0.0004,n.p[1]],n.name.split(' - ')[0],'node '+n.kind).addTo(natLayer);
+  });
 }
 function drawRammer(){
   rammeLayer.clearLayers();
@@ -743,6 +752,7 @@ function renderLegend(){
    ['h','Stier'],['cycleold','Eksisterende cykelsti/fællessti (OSM)'],['cycle','Supercykelsti (ny/opgraderet)'],['loop','Sammenbindingssløjfen (cykel/gang)'],['prom','Kystpromenade (kystprojekt)'],['foot','Gangsti'],['bus','Buskorridor med prioritet'],
    ['h','Punkter'],['S:signal','Signalanlæg'],['S:rundk','Rundkørsel (ny/ombygget)'],['S:black','Sort plet (politiregistrerede uheld)'],['S:byport','Byport - overgang til bygade'],['S:cross','Sikret krydsning for bløde trafikanter'],['S:pr','Pendlerplads / park & ride'],['S:bus','Bus-knudepunkt / mobilitetshub'],['S:bridge','Landskabsbro (Natura 2000-krydsning)'],['S:marina','Marina'],['S:hall','Hal / medborgerhus'],['S:school','Skole'],['S:shop','Center / butikker'],['S:warn','Opmærksomhedspunkt uden for kommunens råderum'],
    ['h','Flader'],['urban','Byzone i dag'],['area','Boligetape til 7.500 (E1-E4)'],['area2','Boligetape til 10.000 (E5-E7)'],['built','Udbygget i scenariet: byområde med veje og huse (kant i etapens farve)'],['rest','Restrummelighed i kommuneplanen (Nicolinelund 3.1/3.2)'],['S:luk','Lukket for gennemkørsel (bussluse/cykelpassage) - tovejs lokalvej'],['marina','Marina med moler, aktivitetsbro og promenade'],
+   ['h','Natur & friluftsliv (slå til på kortet)'],['S:park','Naturbasen / Skolens Skov (forslag)'],['S:shelter','Spejderpunktet - shelter og bålhytte (i gang)'],
    ['h','Grønne områder'],['gpark','Park / bydelspark'],['gskov','Skov (byskov, Sydskoven)'],['geng','Eng og kirkekile (afgræsning, regnvand)'],['gkyst','Kystpark og strandpark'],['gvidde','Vidde - åbent land, der friholdes'],['erhv','Erhvervsområde (N1-N3)'],['skov','Byskov (skovrejsning)'],['kile','Kiler og vidder (friholdes)'],['byband','Bybåndet: fordelingsvej med cykelsti og bus'],['S:kultur','Kulturhus / kulturtorv'],['S:rest','Restaurant / café'],['S:park','Park, skov, naturområde'],['bind','Bindinger (slå til på kortet): lavland, strand-/å-/kirkebyggelinje, § 3, BNBO'],['natura','Natura 2000 - Tryggevælde Ådal (omtrentlig)'],['wood','Skov · eng/vådområde'],['water','Køge Bugt, søer og å']
   ];
   $('#legend').innerHTML=rows.map(r=>r[0]==='h'?`<h4>${r[1]}</h4>`:`<div class="lg">${r[0].startsWith('S:')?`<span style="display:inline-grid;place-items:center;width:44px">${SYM[r[0].slice(2)]()}</span>`:legendSVG(r[0])}<span>${r[1]}</span></div>`).join('');
@@ -776,6 +786,7 @@ $$('.mapbar button').forEach(b=>b.addEventListener('click',()=>setView(b.dataset
 $('#bind').addEventListener('change',e=>{if(e.target.checked){drawBind();bindLayer.addTo(map);}else{map.removeLayer(bindLayer);}});
 $('#rammer').addEventListener('change',e=>{if(e.target.checked){drawRammer();rammeLayer.addTo(map);}else{map.removeLayer(rammeLayer);}});
 $('#cyk').addEventListener('change',e=>{if(e.target.checked){drawCyk();cykLayer.addTo(map);}else{map.removeLayer(cykLayer);}});
+$('#frilu').addEventListener('change',e=>{if(e.target.checked){drawFrilu();natLayer.addTo(map);}else{map.removeLayer(natLayer);}});
 const mq=window.matchMedia('(prefers-color-scheme: dark)');
 const rethem=()=>{paintBase();drawExisting();update(false);renderLegend();if($('#bind').checked)drawBind();if($('#rammer').checked)drawRammer();if($('#cyk').checked)drawCyk();};
 mq.addEventListener?mq.addEventListener('change',rethem):mq.addListener(rethem);
