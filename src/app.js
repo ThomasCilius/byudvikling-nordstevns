@@ -280,7 +280,8 @@ const SYM={
  haevet:(c)=>`<svg viewBox="0 0 24 24" width="18" height="18"><rect x="2" y="2" width="20" height="20" rx="4" fill="#0F8577" stroke="#fff" stroke-width="1.5"/><path d="M5 15h14M7 11h10M9 7h6" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>`,
  luk:(c)=>`<svg viewBox="0 0 24 24" width="26" height="26"><circle cx="12" cy="12" r="11" fill="#C22F27" stroke="#fff" stroke-width="1.5"/><rect x="5" y="10" width="14" height="4" rx="1" fill="#fff"/></svg>`,
  station:(c)=>`<svg viewBox="0 0 24 24" width="22" height="22"><rect x="2" y="2" width="20" height="20" rx="4" fill="#1B1F1E" stroke="#fff" stroke-width="1.5"/><rect x="7" y="6" width="10" height="9" rx="2" fill="#fff"/><circle cx="9" cy="17" r="1.5" fill="#fff"/><circle cx="15" cy="17" r="1.5" fill="#fff"/></svg>`,
- shelter:(c)=>`<svg viewBox="0 0 24 24" width="22" height="22"><circle cx="12" cy="12" r="11" fill="#2F6B3A" stroke="#fff" stroke-width="1.5"/><path d="M5 17l7-9 7 9z" fill="none" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"/><path d="M11 17c-1-2 0-3 1-4 1 1 2 2 1 4z" fill="#fff"/></svg>`
+ shelter:(c)=>`<svg viewBox="0 0 24 24" width="22" height="22"><circle cx="12" cy="12" r="11" fill="#2F6B3A" stroke="#fff" stroke-width="1.5"/><path d="M5 17l7-9 7 9z" fill="none" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"/><path d="M11 17c-1-2 0-3 1-4 1 1 2 2 1 4z" fill="#fff"/></svg>`,
+ fyr:(c)=>`<svg viewBox="0 0 24 24" width="22" height="22"><circle cx="12" cy="12" r="11" fill="#2F6B3A" stroke="#fff" stroke-width="1.5"/><path d="M10 19h4l-.7-9h-2.6z" fill="#fff"/><path d="M9.3 10h5.4l-.5-3h-4.4z" fill="#fff"/><rect x="10.3" y="5" width="3.4" height="2.2" fill="#fff"/><path d="M7 8l-1.5-1.5M17 8l1.5-1.5" stroke="#fff" stroke-width="1.3" stroke-linecap="round"/></svg>`
 };
 
 /* ---------- map ---------- */
@@ -327,13 +328,13 @@ paintBase();
 
 /* labels */
 const lblLayer=L.layerGroup().addTo(map);
-function label(p,txt,cls,off){return L.marker(p,{pane:'lbl',interactive:false,icon:L.divIcon({className:'',html:`<div class="lbl ${cls||''}" style="transform:translate(${off?off[0]:-50}%,${off?off[1]:-50}%)">${txt}</div>`,iconSize:[0,0]})}).addTo(lblLayer);}
+function label(p,txt,cls,off,interactive=false){return L.marker(p,{pane:'lbl',interactive,icon:L.divIcon({className:'',html:`<div class="lbl ${cls||''}" style="transform:translate(${off?off[0]:-50}%,${off?off[1]:-50}%)">${txt}</div>`,iconSize:[0,0]})}).addTo(lblLayer);}
 [['Strøby Egede',[55.4145,12.2470],'place'],['Strøby',[55.3833,12.2829],'place'],['Valløby',[55.4003,12.2322],'place'],['Køge',[55.4565,12.1819],'place'],['Herfølge',[55.4138,12.1412],'place'],['Strøby Ladeplads',[55.4007,12.2998],'place'],['Vallø Strand',[55.4224,12.2277],'place'],['Nicolinelund',[55.4062,12.2586],'place'],['Vedskølle',[55.4062,12.1773],'place'],
  ['Køge Bugt',[55.4300,12.2650],'water'],['Tryggevælde Å',[55.4075,12.2455],'water'],['Tryggevælde Ådal',[55.3920,12.2480],'water'],
  ['Stevnsvej · rute 261',[55.4125,12.2440],'road'],['Kystvejen',[55.4110,12.2650],'road'],['Køgevej · rute 209',[55.4120,12.2290],'road'],['Strandvejen',[55.4380,12.2020],'road'],['Lendrumvej',[55.4060,12.2705],'road'],['Hybenrosevej',[55.4080,12.2580],'road'],['Valnøddevej',[55.4105,12.2515],'road'],['Bakkegårdsvej',[55.4108,12.2425],'road'],['E47 · Sydmotorvejen',[55.4300,12.1150],'road'],
 ].forEach(l=>label(l[1],l[0],l[2]));
 const POI=[[PT.school,'Strøbyskolen','school'],[PT.elle,'Ellehallen (Ellevej 2) · kulturhus/medborgerhus fra 7.500','hall'],[[55.4032,12.2640],'Strøbyhallen · idræt, udbygget med café fra 7.500','hall'],[PT.ege,'Bådklubben Ege','marina'],[PT.center,'Strøby Egede Center','shop'],[PT.egehaven,'Egehaven (plejecenter)','care'],[PT.prambro,'Prambroen','bridge'],[PT.kogeSt,'Køge Station','station'],[PT.egojeSt,'Egøje St.','station'],[PT.e47,'E47 afkørsel 34 Herfølge','station']];
-POI.forEach(p=>{const ic={school:'school',hall:'hall',marina:'marina',shop:'shop',care:'care',bridge:'bridge',station:'station'}[p[2]];L.marker(p[0],{pane:'sym',icon:L.divIcon({className:'sym',html:SYM[ic](),iconSize:[22,22],iconAnchor:[11,11]})}).bindTooltip(p[1]).addTo(lblLayer);label([p[0][0]-0.00028,p[0][1]],p[1].split(' · ')[0],'poi',[-50,0]);});
+POI.forEach(p=>{const ic={school:'school',hall:'hall',marina:'marina',shop:'shop',care:'care',bridge:'bridge',station:'station'}[p[2]];const marker=L.marker(p[0],{pane:'sym',title:p[1],icon:L.divIcon({className:'sym',html:SYM[ic](),iconSize:[22,22],iconAnchor:[11,11]})}).bindTooltip(p[1]).addTo(lblLayer);if(p[2]==='marina')marker.on('click',()=>openMarinaVision());const poiLabel=label([p[0][0]-0.00028,p[0][1]],p[1].split(' · ')[0],'poi',[-50,0],p[2]==='marina');if(p[2]==='marina'&&poiLabel)poiLabel.on('click',()=>openMarinaVision());});
 
 /* zoom-class for label density */
 function zoomClass(){const z=map.getZoom();const c=map.getContainer();c.classList.toggle('z-xlo',z<12);c.classList.toggle('z-lo',z<13);c.classList.toggle('z-mid',z>=13&&z<14.25);}
@@ -412,6 +413,7 @@ function drawMeasures(){
       if(m.geo.rest)REST.forEach(r=>L.geoJSON(r.geom,{renderer:R('areas'),style:{color:css('--area'),weight:2,dashArray:'6 4',fillColor:css('--area'),fillOpacity:.25}}).bindPopup(`<h4>${r.nr} ${r.navn}</h4><p style="margin:4px 0 0">Kommuneplanramme til boliger, ${r.ha} ha, ${r.zone==='Landzone'?'landzone (overføres ved lokalplan)':'byzone'}. Del af Strøby Egedes restrummelighed på 11,0 ha (Kommuneplan 2025).</p>`).addTo(areaLayer));
     }
     const mk=L.marker(m.at,{pane:'sym',icon:L.divIcon({className:'sym',html:SYM[m.sym](),iconSize:[24,24],iconAnchor:[12,12]})}).bindPopup(popupMeasure(m),{maxWidth:340}).addTo(symLayer);
+    if(m.id==='marina'||m.id==='havnehus')mk.on('click',()=>{map.closePopup();openMarinaVision(m.id==='havnehus'?1:0);});
     m._mk=mk;
   });
   if(scen==='k10'){drawEtape(ETAPE['E6'],false);drawEtape(ETAPE['E7'],false);}
@@ -420,7 +422,7 @@ function drawMeasures(){
   if(scen==='k75'||scen==='k10'){[PT.prambro,[55.4000,12.2632]].forEach(p=>L.marker([p[0]+0.0006,p[1]],{pane:'sym',icon:L.divIcon({className:'sym',html:SYM.byport(),iconSize:[24,24],iconAnchor:[12,12]})}).bindTooltip('Byport: overgang til bygade 40 km/t').addTo(symLayer));
     L.marker(PT.bypassRiver,{pane:'sym',icon:L.divIcon({className:'sym',html:SYM.bridge(),iconSize:[24,24],iconAnchor:[12,12]})}).bindTooltip('Landskabsbro over Tryggevælde Ådal (Natura 2000) - forudsætning efter 2013-afgørelsen').addTo(symLayer);}
 }
-function popupMeasure(m){return `<h4>${m.t}</h4><p style="margin:4px 0 0">${m.e}</p>${m.d?`<p style="margin:8px 0 0;color:var(--ink-2)">${m.d}</p>`:''}`;}
+function popupMeasure(m){return `<h4>${m.t}</h4><p style="margin:4px 0 0">${m.e}</p>${m.d?`<p style="margin:8px 0 0;color:var(--ink-2)">${m.d}</p>`:''}${m.id==='marina'||m.id==='havnehus'?marinaVisionButton():''}`;}
 
 
 /* ---------- boligetaper, rammer og bindinger ---------- */
@@ -458,9 +460,14 @@ function drawBind(){
   add(C.fred,{color:'#8A2E6B',weight:2,fillColor:'#8A2E6B',fillOpacity:.15},'Fredet område');
   add(C.bnbo,{color:'#1F44B8',weight:1.5,fillColor:'#1F44B8',fillOpacity:.15},'Boringsnært beskyttelsesområde (BNBO) - drikkevand');
 }
-const FRILU_ICON={naturbase:'park',spejder:'shelter',skovskole:'park'};
+const FRILU_ICON={naturbase:'park',spejder:'shelter',skovskole:'park',verdensarv:'park',fyr:'fyr'};
 function drawFrilu(){
   natLayer.clearLayers();
+  if(STRU.friluftspine){
+    L.polyline(STRU.friluftspine,{renderer:R('net'),color:css('--skov'),weight:3,opacity:.8,dashArray:'2 7',lineCap:'round'})
+      .bindTooltip('Illustrativt Stevns-spor (forslag): Naturbasen \u2192 \u00c5dalen \u2192 Store Heddinge \u2192 Verdensarvsstien \u2192 Stevns Fyr - fragmenter findes i dag, ingen samlet plan endnu',{sticky:true})
+      .addTo(natLayer);
+  }
   (STRU.friluft||[]).forEach(n=>{
     L.marker(n.p,{pane:'sym',icon:L.divIcon({className:'sym',html:SYM[FRILU_ICON[n.kind]](),iconSize:[24,24],iconAnchor:[12,12]})}).bindPopup(`<h4>${n.name}</h4><p style="margin:4px 0 0">${n.t}</p>`,{maxWidth:340}).addTo(natLayer);
     lblAt([n.p[0]-0.0004,n.p[1]],n.name.split(' - ')[0],'node '+n.kind).addTo(natLayer);
@@ -520,7 +527,7 @@ function drawStructure(){
   L.polyline(STRU.aadalssti,{renderer:R('net'),color:css('--cycle'),weight:4,dashArray:'2 8',lineCap:'round'}).bindTooltip('Ådalsstien: cykel-/gangsti fra Strøbyskolen over landskabsbroen til Valløby - naturparkens rygrad',{sticky:true}).addTo(structLayer);
   // noder
   const icon={kultur:'kultur',rest:'rest',center:'shop',kyst:'marina',pr:'pr',park:'park',natur:'park'};
-  STRU.noder.forEach(n=>{L.marker(n.p,{pane:'sym',icon:L.divIcon({className:'sym',html:SYM[icon[n.kind]](),iconSize:[24,24],iconAnchor:[12,12]})}).bindPopup(`<h4>${n.name}</h4><p style="margin:4px 0 0">${n.t}</p>`,{maxWidth:320}).addTo(structLayer);lblAt([n.p[0]-0.0004,n.p[1]],n.name.split(' - ')[0],'node '+n.kind).addTo(structLayer);});
+  STRU.noder.forEach(n=>{L.marker(n.p,{pane:'sym',icon:L.divIcon({className:'sym',html:SYM[icon[n.kind]](),iconSize:[24,24],iconAnchor:[12,12]})}).bindPopup(`<h4>${n.name}</h4><p style="margin:4px 0 0">${n.t}</p>${n.id==='havnehus'?marinaVisionButton():''}`,{maxWidth:320}).addTo(structLayer);lblAt([n.p[0]-0.0004,n.p[1]],n.name.split(' - ')[0],'node '+n.kind).addTo(structLayer);});
 }
 
 
@@ -537,7 +544,7 @@ function renderStructure(){
   </div>
   <h3>Strøby og Valløby</h3>
   <p><b>Strøby</b> kobles fysisk på ad Bybåndet: vej, cykelsti (skolevej til Strøbyskolen) og bus ender ved den nye Dagli’Brugsen i Strøbys nordkant (ramme 7 C2), som Trafikplanen flytter derud. Kirkekilen (ca. ${Math.round(STRU.kirkekile.ha)} ha) holder det åbne landskab, så byerne kobles uden at vokse sammen - det er både Fingerplanens krav om byudvikling af lokal karakter og Strøbys egen identitet. Strøby Nord (E8, 6 ha) er den lille afrunding, der giver knuden liv. Kommuneplan 2025 lægger selv op til en udviklingsskitse for Strøby - det er den, dette kort er et oplæg til.</p>
-  <p><b>Valløby</b> ligger på den anden side af Natura 2000-ådalen. Koblingen er derfor vej (omfartsvejen møder Køgevej mellem ådalen og Valløby), Ådalsstien over landskabsbroen (1,5 km fra Strøbyskolen) og udsigten fra Ådalskanten (E3). Ingen boliger i ådalen.</p>
+  <p><b>Valløby</b> ligger på den anden side af Natura 2000-ådalen. Koblingen er derfor vej (omfartsvejen møder Køgevej mellem ådalen og Valløby), Ådalsstien over landskabsbroen (1,5 km fra Strøbyskolen) og udsigten fra Ådalskanten (E3). Ingen boliger i ådalen fra denne plan - Valløby har sin egen, allerede besluttede vækst uden om Strøby Egede-etaperne: Lokalplan 204 gav byen 35 boliger syd for Valløby efter en lokal udviklingsskitse (KB 15-12-2022, pkt. 252), med egen cykel-/gangsti langs Sognevej. Vallø Slot og Vallø Stift er en selvstændig tråd i kommunens turismestrategi.</p>
   <h3>Kysten: promenade, marina og "øen"</h3>
   <p>Fra badebroerne ved Stevnsvej og Solgårdsparken løber strandpromenaden 1,3 km oven på kystsikringens mole til Havnehuset og marinaen ved Bådklubben Ege (600 både, tegnet ind fra 7.500). Øst for marinaen ligger aktivitetsbroen - havnebad, sauna, kajak, fiskepladser og sæsonbaseret cablepark - som det rekreative bindeled mellem de to områder. Den kunstige ø er droppet på grund af fredningsforslaget for Køge Bugt (jan. 2026); broen på pæle giver det samme liv uden opfyldning og er langt lettere at få tilladelse til.</p>
   <h3>Natur: skov, vidder og kyst</h3>
@@ -581,7 +588,7 @@ function drawBuiltArea(id,geom,col,label,popup){
 }
 function drawMarina(){
   const M=STRU.marina; if(!M)return;
-  L.polygon(M.basin,{renderer:R('areas'),color:css('--prom'),weight:1,fillColor:css('--water'),fillOpacity:1}).bindPopup('<h4>Marina ved Bådklubben Ege - 600 både</h4><p style="margin:4px 0 0">Havnebassin bag moler, der bygger videre på kystsikringens hårde mole (kombinationsløsning). Havnehuset med restaurant og sejlerskole på land, aktivitetsbroen mod øst. Kræver tilladelse fra Kystdirektoratet, dispensation fra strandbeskyttelseslinjen og forenelighed med fredningsforslaget for Køge Bugt.</p>',{maxWidth:340}).addTo(builtLayer);
+  L.polygon(M.basin,{renderer:R('areas'),color:css('--prom'),weight:1,fillColor:css('--water'),fillOpacity:1}).on('click',()=>openMarinaVision()).addTo(builtLayer);
   M.moles.forEach(m=>L.polyline(m,{renderer:R('net'),color:css('--ink-2'),weight:7,lineCap:'round',interactive:false}).addTo(builtLayer));
   M.moles.forEach(m=>L.polyline(m,{renderer:R('net'),color:'#E9E4D6',weight:3.5,lineCap:'round',interactive:false}).addTo(builtLayer));
   M.pontoons.forEach(p=>L.polyline(p,{renderer:R('net'),color:'#F2EFE6',weight:2.5,lineCap:'round',interactive:false}).addTo(builtLayer));
@@ -752,7 +759,7 @@ function renderLegend(){
    ['h','Stier'],['cycleold','Eksisterende cykelsti/fællessti (OSM)'],['cycle','Supercykelsti (ny/opgraderet)'],['loop','Sammenbindingssløjfen (cykel/gang)'],['prom','Kystpromenade (kystprojekt)'],['foot','Gangsti'],['bus','Buskorridor med prioritet'],
    ['h','Punkter'],['S:signal','Signalanlæg'],['S:rundk','Rundkørsel (ny/ombygget)'],['S:black','Sort plet (politiregistrerede uheld)'],['S:byport','Byport - overgang til bygade'],['S:cross','Sikret krydsning for bløde trafikanter'],['S:pr','Pendlerplads / park & ride'],['S:bus','Bus-knudepunkt / mobilitetshub'],['S:bridge','Landskabsbro (Natura 2000-krydsning)'],['S:marina','Marina'],['S:hall','Hal / medborgerhus'],['S:school','Skole'],['S:shop','Center / butikker'],['S:warn','Opmærksomhedspunkt uden for kommunens råderum'],
    ['h','Flader'],['urban','Byzone i dag'],['area','Boligetape til 7.500 (E1-E4)'],['area2','Boligetape til 10.000 (E5-E7)'],['built','Udbygget i scenariet: byområde med veje og huse (kant i etapens farve)'],['rest','Restrummelighed i kommuneplanen (Nicolinelund 3.1/3.2)'],['S:luk','Lukket for gennemkørsel (bussluse/cykelpassage) - tovejs lokalvej'],['marina','Marina med moler, aktivitetsbro og promenade'],
-   ['h','Natur & friluftsliv (slå til på kortet)'],['S:park','Naturbasen / Skolens Skov (forslag)'],['S:shelter','Spejderpunktet - shelter og bålhytte (i gang)'],
+   ['h','Natur & friluftsliv (slå til på kortet)'],['S:park','Naturbasen / Skolens Skov / Verdensarvsstien'],['S:shelter','Spejderpunktet - shelter og bålhytte (i gang)'],['S:fyr','Stevns Fyr - sydlig ende af det illustrative Stevns-spor'],
    ['h','Grønne områder'],['gpark','Park / bydelspark'],['gskov','Skov (byskov, Sydskoven)'],['geng','Eng og kirkekile (afgræsning, regnvand)'],['gkyst','Kystpark og strandpark'],['gvidde','Vidde - åbent land, der friholdes'],['erhv','Erhvervsområde (N1-N3)'],['skov','Byskov (skovrejsning)'],['kile','Kiler og vidder (friholdes)'],['byband','Bybåndet: fordelingsvej med cykelsti og bus'],['S:kultur','Kulturhus / kulturtorv'],['S:rest','Restaurant / café'],['S:park','Park, skov, naturområde'],['bind','Bindinger (slå til på kortet): lavland, strand-/å-/kirkebyggelinje, § 3, BNBO'],['natura','Natura 2000 - Tryggevælde Ådal (omtrentlig)'],['wood','Skov · eng/vådområde'],['water','Køge Bugt, søer og å']
   ];
   $('#legend').innerHTML=rows.map(r=>r[0]==='h'?`<h4>${r[1]}</h4>`:`<div class="lg">${r[0].startsWith('S:')?`<span style="display:inline-grid;place-items:center;width:44px">${SYM[r[0].slice(2)]()}</span>`:legendSVG(r[0])}<span>${r[1]}</span></div>`).join('');
@@ -796,3 +803,36 @@ new MutationObserver(rethem).observe(document.documentElement,{attributes:true,a
 map.setView(VIEWS.town.c,VIEWS.town.z-(map.getContainer().clientWidth<600?0.75:0));
 zoomClass();drawExisting();existVisibility();renderAttn();renderLegend();renderHousing();renderStructure();renderCheck();update();
 })();
+
+/* ---------- marina vision gallery ---------- */
+function openMarinaVision(start=0){
+  let dialog=document.getElementById('marina-vision');
+  if(!dialog){
+    dialog=document.createElement('dialog');dialog.id='marina-vision';
+    dialog.setAttribute('aria-labelledby','marina-vision-title');
+    dialog.innerHTML=`<div class="vision-header"><div><small>STRØBY EGEDE · BÅDKLUBBEN EGE</small><h2 id="marina-vision-title">En sommerdag ved marinaen</h2></div><button type="button" data-close aria-label="Luk visionsbilleder">Luk ×</button></div><figure><img alt="" width="1536" height="1024"><figcaption aria-live="polite"></figcaption></figure><div class="vision-controls"><button type="button" data-prev aria-label="Forrige billede">← Forrige</button><span data-count></span><button type="button" data-next aria-label="Næste billede">Næste →</button></div><p class="vision-note">AI-genererede visionsbilleder af en marina med 600 både, vinterbadeklub, cablepark og en ny sandstrand 20-30 meter ud fra den nuværende kyst. Illustrativ arkitektur og kyst, ikke en opmålt projekttegning eller en vedtaget plan. Stedreference: <a href="https://baadklubben-ege.dk/cms/Gallery.aspx#Dronefoto_Kajak_2025" target="_blank" rel="noopener noreferrer">Bådklubben Eges dronegalleri, 2025</a>.</p>`;
+    document.body.appendChild(dialog);
+    dialog.querySelector('[data-close]').onclick=()=>dialog.close();
+    dialog.querySelector('[data-prev]').onclick=()=>show(-1);
+    dialog.querySelector('[data-next]').onclick=()=>show(1);
+    dialog.addEventListener('click',e=>{if(e.target===dialog){const r=dialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)dialog.close();}});
+    dialog.addEventListener('keydown',e=>{if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();show(e.key==='ArrowLeft'?-1:1);}});
+    dialog.addEventListener('close',()=>{document.body.style.overflow=dialog._overflow;dialog._opener?.focus();});
+  }
+  const scenes=[
+    ['marina-sommer-overblik.png','Marinaen og kystbyen','Sommerudsigt over den foreslåede marina med bådebroer, stenmoler og Strøby Egede bag kysten.'],
+    ['marina-sommer-klubhus.png','Havnehuset helt ude i vandet','Café og restaurant i et nordisk klubhus med egetræ, sten, stål og ensidigt hældende sedumtag.'],
+    ['marina-sommer-vandsport.png','Et fælles liv ved vandet','Vinterbadeklub med sauna, cablepark, kajakker, surf og optimistsejlads ved den nye sandstrand.']
+  ];
+  function show(delta){
+    dialog._index=(dialog._index+delta+scenes.length)%scenes.length;
+    const [file,title,description]=scenes[dialog._index];
+    const base=location.pathname.startsWith('/kommunalpolitik/')?'/kommunalpolitik/byudviklingnord/images/':'images/';
+    const img=dialog.querySelector('img');img.src=base+file;img.alt=description;
+    dialog.querySelector('figcaption').textContent=title+' · '+description;
+    dialog.querySelector('[data-count]').textContent=(dialog._index+1)+' / '+scenes.length;
+  }
+  dialog._index=start;show(0);
+  if(!dialog.open){dialog._opener=document.activeElement;dialog._overflow=document.body.style.overflow;document.body.style.overflow='hidden';dialog.showModal();}
+}
+function marinaVisionButton(){return '<button type="button" class="vision-open" onclick="openMarinaVision()">Se marinaens visionsbilleder →</button>';}
