@@ -229,7 +229,7 @@ const ATTN=[
  ['Reservér korridorerne nu','Omfartsvej, statsvej (Vejdirektoratets to principielle linjeføringer er tilbage i Kommuneplan 2025) og en østlig fordelingsvej. Ingen lokalplan må bygge dem til.'],
  ['Ådalen er Natura 2000 - rigkær stoppede omfartsvejen i 2013','12,7 mio. kr. i budget 2010, afvist af Natur- og Miljøklagenævnet april 2013, projektet lukket i 2024. En ny krydsning skal være landskabsbro fra dag ét og miljøvurderes sammen med statsvejen.'],
  ['Udstykningsprincip: fordelingsvej, to adgange, ét kryds','Ikke "ét signalanlæg pr. udstykning". Nye områder hænger sammen indbyrdes og med Lendrumvej, så de kan kobles på omfartsvejen.'],
- ['Rækkefølge: omfartsvej og statsvej åbner sammen','Omfartsvej alene flytter køen til Køgevej og Prambroen. Statsvejen (MKV 2027-29, anlæg 2030+) er forudsætningen for 7.500.'],
+ ['Ét projekt: omfartsvej og statsvej åbner sammen','Omfartsvejen omfatter i dag hele forbindelsen til E47 (statsvejen er ikke et separat, senere projekt). Anlæg sat til at gå i gang i 2029 - forudsætningen for 7.500.'],
  ['Prambroen er byens eneste bro','Kun to vejbroer over Tryggevælde Å i hele kommunen. Omfartsvejens bro er også beredskab og redundans.'],
  ['Cykel og bus er kapacitet','10 % overflytning ≈ 120-170 biler færre pr. spidstime ved 7.500. Supercykelsti og busprioritet før udstykning nr. 2.'],
  ['Kystvejen kan ikke vokse','6 m vejudlæg. Marina, kystprojekt og konvertering af sommerhuse må ikke lægge trafik på den. Adgang og parkering fra Stevnsvej-siden.'],
@@ -280,7 +280,8 @@ const SYM={
  haevet:(c)=>`<svg viewBox="0 0 24 24" width="18" height="18"><rect x="2" y="2" width="20" height="20" rx="4" fill="#0F8577" stroke="#fff" stroke-width="1.5"/><path d="M5 15h14M7 11h10M9 7h6" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>`,
  luk:(c)=>`<svg viewBox="0 0 24 24" width="26" height="26"><circle cx="12" cy="12" r="11" fill="#C22F27" stroke="#fff" stroke-width="1.5"/><rect x="5" y="10" width="14" height="4" rx="1" fill="#fff"/></svg>`,
  station:(c)=>`<svg viewBox="0 0 24 24" width="22" height="22"><rect x="2" y="2" width="20" height="20" rx="4" fill="#1B1F1E" stroke="#fff" stroke-width="1.5"/><rect x="7" y="6" width="10" height="9" rx="2" fill="#fff"/><circle cx="9" cy="17" r="1.5" fill="#fff"/><circle cx="15" cy="17" r="1.5" fill="#fff"/></svg>`,
- shelter:(c)=>`<svg viewBox="0 0 24 24" width="22" height="22"><circle cx="12" cy="12" r="11" fill="#2F6B3A" stroke="#fff" stroke-width="1.5"/><path d="M5 17l7-9 7 9z" fill="none" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"/><path d="M11 17c-1-2 0-3 1-4 1 1 2 2 1 4z" fill="#fff"/></svg>`
+ shelter:(c)=>`<svg viewBox="0 0 24 24" width="22" height="22"><circle cx="12" cy="12" r="11" fill="#2F6B3A" stroke="#fff" stroke-width="1.5"/><path d="M5 17l7-9 7 9z" fill="none" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"/><path d="M11 17c-1-2 0-3 1-4 1 1 2 2 1 4z" fill="#fff"/></svg>`,
+ fyr:(c)=>`<svg viewBox="0 0 24 24" width="22" height="22"><circle cx="12" cy="12" r="11" fill="#2F6B3A" stroke="#fff" stroke-width="1.5"/><path d="M10 19h4l-.7-9h-2.6z" fill="#fff"/><path d="M9.3 10h5.4l-.5-3h-4.4z" fill="#fff"/><rect x="10.3" y="5" width="3.4" height="2.2" fill="#fff"/><path d="M7 8l-1.5-1.5M17 8l1.5-1.5" stroke="#fff" stroke-width="1.3" stroke-linecap="round"/></svg>`
 };
 
 /* ---------- map ---------- */
@@ -458,9 +459,14 @@ function drawBind(){
   add(C.fred,{color:'#8A2E6B',weight:2,fillColor:'#8A2E6B',fillOpacity:.15},'Fredet område');
   add(C.bnbo,{color:'#1F44B8',weight:1.5,fillColor:'#1F44B8',fillOpacity:.15},'Boringsnært beskyttelsesområde (BNBO) - drikkevand');
 }
-const FRILU_ICON={naturbase:'park',spejder:'shelter',skovskole:'park'};
+const FRILU_ICON={naturbase:'park',spejder:'shelter',skovskole:'park',verdensarv:'park',fyr:'fyr'};
 function drawFrilu(){
   natLayer.clearLayers();
+  if(STRU.friluftspine){
+    L.polyline(STRU.friluftspine,{renderer:R('net'),color:css('--skov'),weight:3,opacity:.8,dashArray:'2 7',lineCap:'round'})
+      .bindTooltip('Illustrativt Stevns-spor (forslag): Naturbasen \u2192 \u00c5dalen \u2192 Store Heddinge \u2192 Verdensarvsstien \u2192 Stevns Fyr - fragmenter findes i dag, ingen samlet plan endnu',{sticky:true})
+      .addTo(natLayer);
+  }
   (STRU.friluft||[]).forEach(n=>{
     L.marker(n.p,{pane:'sym',icon:L.divIcon({className:'sym',html:SYM[FRILU_ICON[n.kind]](),iconSize:[24,24],iconAnchor:[12,12]})}).bindPopup(`<h4>${n.name}</h4><p style="margin:4px 0 0">${n.t}</p>`,{maxWidth:340}).addTo(natLayer);
     lblAt([n.p[0]-0.0004,n.p[1]],n.name.split(' - ')[0],'node '+n.kind).addTo(natLayer);
@@ -537,7 +543,7 @@ function renderStructure(){
   </div>
   <h3>Strøby og Valløby</h3>
   <p><b>Strøby</b> kobles fysisk på ad Bybåndet: vej, cykelsti (skolevej til Strøbyskolen) og bus ender ved den nye Dagli’Brugsen i Strøbys nordkant (ramme 7 C2), som Trafikplanen flytter derud. Kirkekilen (ca. ${Math.round(STRU.kirkekile.ha)} ha) holder det åbne landskab, så byerne kobles uden at vokse sammen - det er både Fingerplanens krav om byudvikling af lokal karakter og Strøbys egen identitet. Strøby Nord (E8, 6 ha) er den lille afrunding, der giver knuden liv. Kommuneplan 2025 lægger selv op til en udviklingsskitse for Strøby - det er den, dette kort er et oplæg til.</p>
-  <p><b>Valløby</b> ligger på den anden side af Natura 2000-ådalen. Koblingen er derfor vej (omfartsvejen møder Køgevej mellem ådalen og Valløby), Ådalsstien over landskabsbroen (1,5 km fra Strøbyskolen) og udsigten fra Ådalskanten (E3). Ingen boliger i ådalen.</p>
+  <p><b>Valløby</b> ligger på den anden side af Natura 2000-ådalen. Koblingen er derfor vej (omfartsvejen møder Køgevej mellem ådalen og Valløby), Ådalsstien over landskabsbroen (1,5 km fra Strøbyskolen) og udsigten fra Ådalskanten (E3). Ingen boliger i ådalen fra denne plan - Valløby har sin egen, allerede besluttede vækst uden om Strøby Egede-etaperne: Lokalplan 204 gav byen 35 boliger syd for Valløby efter en lokal udviklingsskitse (KB 15-12-2022, pkt. 252), med egen cykel-/gangsti langs Sognevej. Vallø Slot og Vallø Stift er en selvstændig tråd i kommunens turismestrategi.</p>
   <h3>Kysten: promenade, marina og "øen"</h3>
   <p>Fra badebroerne ved Stevnsvej og Solgårdsparken løber strandpromenaden 1,3 km oven på kystsikringens mole til Havnehuset og marinaen ved Bådklubben Ege (600 både, tegnet ind fra 7.500). Øst for marinaen ligger aktivitetsbroen - havnebad, sauna, kajak, fiskepladser og sæsonbaseret cablepark - som det rekreative bindeled mellem de to områder. Den kunstige ø er droppet på grund af fredningsforslaget for Køge Bugt (jan. 2026); broen på pæle giver det samme liv uden opfyldning og er langt lettere at få tilladelse til.</p>
   <h3>Natur: skov, vidder og kyst</h3>
@@ -752,7 +758,7 @@ function renderLegend(){
    ['h','Stier'],['cycleold','Eksisterende cykelsti/fællessti (OSM)'],['cycle','Supercykelsti (ny/opgraderet)'],['loop','Sammenbindingssløjfen (cykel/gang)'],['prom','Kystpromenade (kystprojekt)'],['foot','Gangsti'],['bus','Buskorridor med prioritet'],
    ['h','Punkter'],['S:signal','Signalanlæg'],['S:rundk','Rundkørsel (ny/ombygget)'],['S:black','Sort plet (politiregistrerede uheld)'],['S:byport','Byport - overgang til bygade'],['S:cross','Sikret krydsning for bløde trafikanter'],['S:pr','Pendlerplads / park & ride'],['S:bus','Bus-knudepunkt / mobilitetshub'],['S:bridge','Landskabsbro (Natura 2000-krydsning)'],['S:marina','Marina'],['S:hall','Hal / medborgerhus'],['S:school','Skole'],['S:shop','Center / butikker'],['S:warn','Opmærksomhedspunkt uden for kommunens råderum'],
    ['h','Flader'],['urban','Byzone i dag'],['area','Boligetape til 7.500 (E1-E4)'],['area2','Boligetape til 10.000 (E5-E7)'],['built','Udbygget i scenariet: byområde med veje og huse (kant i etapens farve)'],['rest','Restrummelighed i kommuneplanen (Nicolinelund 3.1/3.2)'],['S:luk','Lukket for gennemkørsel (bussluse/cykelpassage) - tovejs lokalvej'],['marina','Marina med moler, aktivitetsbro og promenade'],
-   ['h','Natur & friluftsliv (slå til på kortet)'],['S:park','Naturbasen / Skolens Skov (forslag)'],['S:shelter','Spejderpunktet - shelter og bålhytte (i gang)'],
+   ['h','Natur & friluftsliv (slå til på kortet)'],['S:park','Naturbasen / Skolens Skov / Verdensarvsstien'],['S:shelter','Spejderpunktet - shelter og bålhytte (i gang)'],['S:fyr','Stevns Fyr - sydlig ende af det illustrative Stevns-spor'],
    ['h','Grønne områder'],['gpark','Park / bydelspark'],['gskov','Skov (byskov, Sydskoven)'],['geng','Eng og kirkekile (afgræsning, regnvand)'],['gkyst','Kystpark og strandpark'],['gvidde','Vidde - åbent land, der friholdes'],['erhv','Erhvervsområde (N1-N3)'],['skov','Byskov (skovrejsning)'],['kile','Kiler og vidder (friholdes)'],['byband','Bybåndet: fordelingsvej med cykelsti og bus'],['S:kultur','Kulturhus / kulturtorv'],['S:rest','Restaurant / café'],['S:park','Park, skov, naturområde'],['bind','Bindinger (slå til på kortet): lavland, strand-/å-/kirkebyggelinje, § 3, BNBO'],['natura','Natura 2000 - Tryggevælde Ådal (omtrentlig)'],['wood','Skov · eng/vådområde'],['water','Køge Bugt, søer og å']
   ];
   $('#legend').innerHTML=rows.map(r=>r[0]==='h'?`<h4>${r[1]}</h4>`:`<div class="lg">${r[0].startsWith('S:')?`<span style="display:inline-grid;place-items:center;width:44px">${SYM[r[0].slice(2)]()}</span>`:legendSVG(r[0])}<span>${r[1]}</span></div>`).join('');
