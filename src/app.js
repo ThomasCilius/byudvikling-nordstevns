@@ -52,9 +52,9 @@ const SCEN={
   k10:{P:10000,label:'10.000 indbyggere',bypass:true,statsvej:true,east:true,shift:0,south:0.80,kystluk:true,ring:true}
 };
 const PRESETS={
-  thomas:{h:3.2,a25:0.72,c:0.80,occ:1.1,pk:0.40,other:0.12,rpop:12500,rrate:0.52,south:0.75},
-  work:{h:3.2,a25:0.50,c:0.80,occ:1.1,pk:0.40,other:0.12,rpop:12500,rrate:0.60,south:0.75},
-  calib:{h:3.2,a25:0.72,c:0.30,occ:1.1,pk:0.40,other:0.12,rpop:12500,rrate:0.68,south:0.75}
+  thomas:{h:3.2,a25:0.72,c:0.80,occ:1.1,pk:0.40,other:0.12,rpop:12500,rwork:0.50,rshare:0.52,south:0.75},
+  work:{h:3.2,a25:0.50,c:0.80,occ:1.1,pk:0.40,other:0.12,rpop:12500,rwork:0.50,rshare:0.60,south:0.75},
+  calib:{h:3.2,a25:0.72,c:0.30,occ:1.1,pk:0.40,other:0.12,rpop:12500,rwork:0.50,rshare:0.68,south:0.75}
 };
 let svOn=true;
 let A=Object.assign({},PRESETS.thomas);
@@ -65,8 +65,9 @@ const SLIDERS=[
   {k:'c',l:'Andel af dem, der pendler i bil (mod Køge/København)',min:0.1,max:1,step:0.02,f:pct},
   {k:'occ',l:'Personer pr. bil',min:1,max:1.6,step:0.05,f:v=>v.toFixed(2)},
   {k:'pk',l:'Andel af pendlerne i den travleste time',min:0.25,max:0.55,step:0.01,f:pct},
-  {k:'rpop',l:'Resten af Stevns: indbyggere øst for ådalen, der kører via Prambroen (Strøby, Store Heddinge, Rødvig m.fl.)',min:8000,max:18000,step:250,f:v=>fmt(v)+' indb.'},
-  {k:'rrate',l:'Resten af Stevns: bilture pr. indbygger pr. døgn over Prambroen (pendling, indkøb, erhverv, turisme)',min:0.3,max:1.0,step:0.02,f:v=>v.toFixed(2)+' ture'},
+  {k:'rpop',l:'Resten af Stevns: indbyggere øst for ådalen (Strøby, Store Heddinge, Rødvig, Klippinge m.fl.)',min:8000,max:18000,step:250,f:v=>fmt(v)+' indb.'},
+  {k:'rwork',l:'Resten af Stevns: andel i erhvervsaktiv alder (25-64 år)',min:0.40,max:0.60,step:0.01,f:pct},
+  {k:'rshare',l:'Resten af Stevns: andel af de 25-64-årige, der kører over Prambroen dagligt (pendling, ærinder, erhverv)',min:0.10,max:1.0,step:0.02,f:pct},
   {k:'south',l:'Andel af ny vækst, der lægges syd/øst for byen',min:0.4,max:0.95,step:0.05,f:pct},
   {k:'shift',l:'Overflytning til cykel, bus og tog (scenariets tiltag)',min:0,max:0.35,step:0.01,f:pct}
 ];
@@ -82,7 +83,8 @@ function model(sk,par){
   let zN=0.40*base+(1-south)*0.6*growth, zK=0.25*base+(1-south)*0.4*growth, zS=0.35*base+south*growth;
   const tot=zN+zK+zS; zN/=tot; zK/=tot; zS/=tot;
   const E=peakOut+otherOut, EN=E*zN, EK=E*zK, ES=E*zS;
-  const Tadt=par.rpop*par.rrate; const Tout=Tadt*0.10*0.65, Tst=Tout*0.85, Tky=Tout*0.15;
+  const Tadt=par.rpop*par.rwork*par.rshare*2;   // biler pr. døgn over Prambroen fra resten af Stevns (frem og tilbage)
+  const Tout=Tadt*0.10*0.65, Tst=Tout*0.85, Tky=Tout*0.15;
   const useSv=S.statsvej&&svOn;
   const f={};
   const eastDiv=S.east?0.40*EK:0;              // Lendrumvej åbnet: Brinken/Skrænten/kystbyen kører mod syd           // østlig fordelingsvej: kysttrafik via Lendrumvej → omfartsvej
@@ -474,7 +476,7 @@ function renderHousing(){
   <p>Alle marker omkring byen er screenet mod de bindinger, der kan slås op offentligt: Natura 2000 og § 3-natur, å- og søbeskyttelseslinjer, kirkebyggelinjen om Valløby Kirke, fredninger, boringsnære beskyttelsesområder, strandbeskyttelse (300 m), terræn under kote 3 m (EU-DEM), 50 m støjzone langs Stevnsvej og 75 m langs omfartsvej/statsvej, samt 200 m om renseanlægget ved Strøby Ladeplads. Resten er scoret på afstand til skole/idrætscenter og Centret, sammenhæng med eksisterende byzone (indefra og ud), adgang til Lendrumvej/omfartsvejen og terrænhøjde. Slå <i>Bindinger</i> til på kortet for at se lagene.</p>
   <h3>7.500: etape E0-E2 (${Math.round(sumA(st1))} ha)</h3>
   <div style="overflow-x:auto"><table class="eta"><thead><tr><th></th><th>Område</th><th class="r">ha</th><th class="r">Boliger</th><th class="r">Indb.</th></tr></thead><tbody>${st1.map(row).join('')}<tr class="sum"><td></td><td>E0-E2 + restrummelighed (11 ha)</td><td class="r">${(sumA(st1)+11).toLocaleString('da-DK')}</td><td class="r">${fmt(sumH(st1)+130)}</td><td class="r">${fmt(sum(st1)+rest)}</td></tr><tr class="sum"><td></td><td>Indbyggere i alt</td><td></td><td></td><td class="r">${fmt(4900+sum(st1)+rest)}</td></tr></tbody></table></div>
-  <p class="small">Rækkefølgen er indefra og ud: først hullet ved Stolpegården (E0), som allerede var perspektivområde i Kommuneplan 2017 og fik afvist sit kommuneplantillæg i 2023 med fire betingelser, der bliver denne plans tjekliste. Nicolinelunds eng (4,8 ha, G14) er grundejerforeningernes fællesareal og forbliver eng - E0 bygger ikke på den, lægger sin egen 25 m grønne kant og leder ikke regnvand ind i den. Så Lendrumvej-kilen (E1) og Idrætstorvets bydel (E2). Alle tre kobles på den åbnede Lendrumvej og omfartsvejen - ingen nye kryds på Stevnsvej. Arealet vest for skolen (3-4 m over havet) er lagt ud til erhverv (N1). Ådalskanten vest for Stevnsvej (E3) venter til 10.000.</p>
+  <p class="small">Rækkefølgen er indefra og ud: først hullet ved Stolpegårdens jorder (E0, matr. 8iq - ikke en del af Nicolinelund), som allerede var perspektivområde i Kommuneplan 2017 og fik afvist sit kommuneplantillæg i 2023 med fire betingelser, der bliver denne plans tjekliste. Nicolinelunds eng (4,8 ha, G14) er grundejerforeningernes fællesareal og forbliver eng - E0 bygger ikke på den, lægger sin egen 25 m grønne kant og leder ikke regnvand ind i den. Så Lendrumvej-kilen (E1) og Idrætstorvets bydel (E2). Alle tre kobles på den åbnede Lendrumvej og omfartsvejen - ingen nye kryds på Stevnsvej. Arealet vest for skolen (3-4 m over havet) er lagt ud til erhverv (N1). Ådalskanten vest for Stevnsvej (E3) venter til 10.000.</p>
   <h3>Erhverv (${ERHV.reduce((x,n)=>x+n.ha,0).toFixed(0)} ha)</h3>
   <div style="overflow-x:auto"><table class="eta"><thead><tr><th></th><th>Område</th><th class="r">ha</th><th>Type</th></tr></thead><tbody>${ERHV.map(n=>`<tr data-erhv="${n.id}" tabindex="0"><td><span class="etag" style="background:var(--erhv)">${n.id}</span></td><td>${n.name}<div class="small muted">${n.stage==='k75'?'7.500':'10.000 · option'}</div></td><td class="r">${n.ha.toLocaleString('da-DK')}</td><td class="small">${n.typ}</td></tr>`).join('')}</tbody></table></div>
   <p class="small">Strøby Egede har ingen erhvervsramme i dag (kun bymidten 3 C1 og blandet bolig/erhverv 3 C2). Videnstunge kontorjobs lægges ved Idrætstorvet, i Centret og N1; e-handel og lager i N2 ved omfartsvejen med lastbiler uden for byen. Ved 10.000 flyttes logistik helt ud til Statsvejsporten (N3, option).</p>
@@ -653,13 +655,13 @@ function renderKPIs(){
   $('#kpis').innerHTML=
     kpi('Indbyggere · husstande',`${fmt(r.P)}<small>· ${fmt(r.H)} boliger</small>`,`à ${A.h.toFixed(1)} personer`)+
     kpi('Pendlere i bil (pr. døgn, én retning)',fmt(r.carsDay*(1-r.shift)),o?`${other}: ${fmt(o.carsDay*(1-o.shift))}`:'')+
-    kpi('Biler ud over Prambroen i spidstimen',`${fmt(r.E+r.Tout)}<small>/t</small>`,`heraf ${fmt(r.Tout)} fra resten af Stevns (${fmt(r.Tadt)} ÅDT) · ${other}: ${o?fmt(o.E+o.Tout):'-'}`)+
+    kpi('Biler ud over Prambroen i spidstimen',`${fmt(r.E+r.Tout)}<small>/t</small>`,`heraf ${fmt(r.Tout)} fra resten af Stevns (${pct(A.rshare)} af ${fmt(A.rpop*A.rwork)} i erhvervsaktiv alder = ${fmt(r.Tadt)} ÅDT) · ${other}: ${o?fmt(o.E+o.Tout):'-'}`)+
     kpi('Modelleret ÅDT ved Prambroen',fmt(r.adt),`målt i dag: >13.000 (Trafikplan 2025) · ${other}: ${o?fmt(o.adt):'-'}`)+
     kpi('Stevnsvej nord (Centret → Prambroen)',`${pct(vcN)}<small>af kapacitet</small>`,`<span class="pill l${los(vcN)}">${LOSN[los(vcN)]}</span> ${on!=null?'· '+other+': '+pct(on):''}`,'l'+los(vcN))+
     kpi('Køge-strækningen (Strandvejen)',`${pct(vcK)}<small>af kapacitet</small>`,`<span class="pill l${los(vcK)}">${LOSN[los(vcK)]}</span> ${ok!=null?'· '+other+': '+pct(ok):''}`,'l'+los(vcK))+
     kpi('Pendlerens ekstra ventetid i myldretiden (skøn)',`${Math.round(r.dN)}<small>min via Prambroen</small>`,`${SCEN[scen].bypass?`sydlige bydel via omfartsvej: ${Math.round(r.dS)} min${r.useSv?' (statsvej)':' (Køgevej → Strandvejen)'}`:'hele byen kører samme vej'} · ${other}: ${o?Math.round(o.dN)+' / '+Math.round(o.dS)+' min':'-'}`,'l'+los(Math.min(2.2,r.dN/12+0.4)));
   const cal=$('#calib');
-  if(preset==='calib'){cal.className='callout blue';cal.innerHTML=`<b>Kalibreret sæt vises.</b> Pendlerandel 30 % af alle over 25 år og 8.500 gennemkørende biler/døgn rammer Trafikplanens tælling (>13.000 ÅDT) og beskrivelsen "kø morgen og eftermiddag". Skift til stresstesten under <i>Antagelser</i> for stresstesten.`;}
+  if(preset==='calib'){cal.className='callout blue';cal.innerHTML=`<b>Kalibreret sæt vises.</b> Pendlerandel 30 % af alle over 25 år og 68 % af de 25-64-årige i resten af Stevns over Prambroen (8.500 biler/døgn) rammer Trafikplanens tælling (>13.000 ÅDT) og beskrivelsen "kø morgen og eftermiddag". Skift til stresstesten under <i>Antagelser</i> for stresstesten.`;}
   else{cal.className='callout';cal.innerHTML=`<b>Stresstest.</b> Med 80 % af alle over 25 år i bil (${preset==='work'?'her: 80 % af de 25-64-årige':'inkl. pensionister'}) giver modellen ${fmt(r.E+r.Tout)} biler/t ud over Prambroen ${scen==='today'?'i dag':'i dette scenarie'}${scen==='today'?` - tællingerne svarer til ca. ${fmt(resOther?resOther.E+resOther.Tout:0)}. Antagelsen overvurderer altså dagens trafik med ca. ${pct((r.E+r.Tout)/(resOther?resOther.E+resOther.Tout:1)-1)}, men er en fair øvre grænse til at dimensionere efter`:''}. Det kalibrerede tal står i småt ved hvert nøgletal.`;}
 }
 function renderTable(){
