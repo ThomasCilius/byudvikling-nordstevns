@@ -323,6 +323,19 @@ code{font:12px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;background:var(--
     </div>
   </section>
 
+  <details class="section" id="assump">
+    <summary><h2>Antagelser &amp; model - justér selv</h2></summary>
+    <div class="body">
+      <div class="presets" id="presets">
+        <button data-p="thomas" aria-pressed="true">Stresstest: 80 % af alle over 25 år pendler i bil</button>
+        <button data-p="work" aria-pressed="false">80 % af erhvervsaktive 25-64</button>
+        <button data-p="calib" aria-pressed="false">Kalibreret til tællinger</button>
+      </div>
+      <div id="sliders"></div>
+      <p class="small muted" style="margin-top:8px">Modellen er en spidstimemodel for én retning: pendlerbiler = indbyggere × andel 25+ × pendlerandel ÷ personer pr. bil; heraf kører spidstimeandelen i den travleste time. Hertil lægges lokale ærindeture (0,12 bilture pr. husstand i timen) og gennemkørende trafik fra det øvrige Øststevns. Praktisk kapacitet pr. retning: bygennemfart med signalanlæg 950, Kystvejen (6 m) 450, Køgevej 1.200, omfartsvej 1.300, statsvej 1.500, Køge-strækningen (restkapacitet for Stevns-trafik) 800. Belastning = biler ÷ kapacitet.</p>
+    </div>
+  </details>
+
   <section class="section" aria-label="Nøgletal">
     <h2 id="kpi-h">Nøgletal · <span id="kpi-scen">I dag</span></h2>
     <div class="kpis" id="kpis"></div>
@@ -356,19 +369,6 @@ code{font:12px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;background:var(--
     <h2>Kontrol: hænger det sammen?</h2>
     <div id="check-body"></div>
   </section>
-
-  <details class="section" id="assump">
-    <summary><h2>Antagelser &amp; model (justér selv)</h2></summary>
-    <div class="body">
-      <div class="presets" id="presets">
-        <button data-p="thomas" aria-pressed="true">Stresstest: 80 % af alle over 25 år pendler i bil</button>
-        <button data-p="work" aria-pressed="false">80 % af erhvervsaktive 25-64</button>
-        <button data-p="calib" aria-pressed="false">Kalibreret til tællinger</button>
-      </div>
-      <div id="sliders"></div>
-      <p class="small muted" style="margin-top:8px">Modellen er en spidstimemodel for én retning: pendlerbiler = indbyggere × andel 25+ × pendlerandel ÷ personer pr. bil; heraf kører spidstimeandelen i den travleste time. Hertil lægges lokale ærindeture (0,12 bilture pr. husstand i timen) og gennemkørende trafik fra det øvrige Øststevns. Praktisk kapacitet pr. retning: bygennemfart med signalanlæg 950, Kystvejen (6 m) 450, Køgevej 1.200, omfartsvej 1.300, statsvej 1.500, Køge-strækningen (restkapacitet for Stevns-trafik) 800. Belastning = biler ÷ kapacitet.</p>
-    </div>
-  </details>
 
   <details class="section" id="attn" open>
     <summary><h2>Vær opmærksom fra start</h2></summary>
