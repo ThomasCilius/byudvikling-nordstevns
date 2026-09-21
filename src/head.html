@@ -1,0 +1,404 @@
+<title>Strøby Egede Trafikatlas</title>
+<meta name="description" content="Interaktiv trafikanalyse af Strøby Egede i dag og ved 5.000, 7.500 og 10.000 indbyggere">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@400;500;600;700&family=Archivo:wght@400;500;600&display=swap">
+<style>
+/* ---------- tokens ---------- */
+:root{
+  --paper:#F4F5F1;        /* page ground */
+  --land:#ECEEE6;         /* map land */
+  --sea:#C9DCE3;
+  --urban:#E1DFD6;
+  --bld:#C9C4B6;
+  --wood:#D3DEC4;
+  --green:#DFE6D0;
+  --wet:#D9E4D3;
+  --water:#B9D3DD;
+  --road-case:#8E9089;
+  --road-fill:#FFFFFF;
+  --road-minor:#D8D9D2;
+  --ink:#1B1F1E;
+  --ink-2:#4B514F;
+  --ink-3:#7A817E;
+  --line:#D6D9D2;
+  --panel:#FBFBF9;
+  --card:#FFFFFF;
+  --new:#1F44B8;          /* ny vej */
+  --new-soft:#D9E0F6;
+  --upg:#D9731A;          /* opgraderet / ombygget */
+  --upg-soft:#FBE7D3;
+  --down:#3E7F3B;         /* nedklassificeret / bygade */
+  --cycle:#0F8577;        /* cykel */
+  --cycle-soft:#D5EDE8;
+  --prom:#2C7FA6;         /* promenade / kyst */
+  --nat:#5E8F3E;          /* natura */
+  --area:#C98B1F;         /* udstykning 7.500 */
+  --area2:#7E4E9E;        /* udstykning 10.000 */
+  --bind:#2E6E9E;         /* bindinger */
+  --erhv:#4A5FB3;         /* erhverv */
+  --kult:#B5266B;         /* kultur/byliv */
+  --skov:#2F6B3A;         /* byskov */
+  --kile:#6FA35A;         /* kiler og vidder */
+  --struct:#2B3437;       /* bybånd */
+  --los1:#3C9A5F; --los2:#DDB423; --los3:#E3702A; --los4:#C22F27;
+  --sp30:#2E6B3E; --sp40:#4C8C3F; --sp50:#C9A227; --sp60:#E07A1F; --sp80:#B5402A; --sp90:#7A1E3A; --sp110:#4B1030;
+  --focus:#1F44B8;
+  --shadow:0 1px 2px rgba(20,25,22,.08),0 8px 24px rgba(20,25,22,.10);
+  --radius:6px;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#15181A; --land:#1E2326; --sea:#132B36; --urban:#2A2E30; --bld:#474D4E; --wood:#22301F; --green:#23301F; --wet:#1F2E24; --water:#173441;
+    --road-case:#0E1112; --road-fill:#5A605E; --road-minor:#343A3A;
+    --ink:#ECEDE8; --ink-2:#B8BDB9; --ink-3:#8A918D; --line:#333A3A; --panel:#1B1F21; --card:#22272A;
+    --new:#7C9BFF; --new-soft:#1E2A52; --upg:#F0994B; --upg-soft:#4A2C12; --down:#7DC178; --cycle:#4EC9B7; --cycle-soft:#123B36; --prom:#6FB6DB; --nat:#8FC468; --area:#E2A94A; --area2:#C79BE0; --bind:#7FB6E0; --erhv:#8FA0E8; --kult:#E86AA5; --skov:#6FB27A; --kile:#9CCB86; --struct:#E8ECEA;
+    --los1:#4FB874; --los2:#E5C23A; --los3:#F08344; --los4:#E4463D;
+    --sp30:#5FA872; --sp40:#7DC178; --sp50:#E2C24A; --sp60:#F0994B; --sp80:#E36A50; --sp90:#D9557A; --sp110:#C24BA8;
+    --focus:#7C9BFF; --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.45);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#15181A; --land:#1E2326; --sea:#132B36; --urban:#2A2E30; --bld:#474D4E; --wood:#22301F; --green:#23301F; --wet:#1F2E24; --water:#173441;
+  --road-case:#0E1112; --road-fill:#5A605E; --road-minor:#343A3A;
+  --ink:#ECEDE8; --ink-2:#B8BDB9; --ink-3:#8A918D; --line:#333A3A; --panel:#1B1F21; --card:#22272A;
+  --new:#7C9BFF; --new-soft:#1E2A52; --upg:#F0994B; --upg-soft:#4A2C12; --down:#7DC178; --cycle:#4EC9B7; --cycle-soft:#123B36; --prom:#6FB6DB; --nat:#8FC468; --area:#E2A94A; --area2:#C79BE0; --bind:#7FB6E0; --erhv:#8FA0E8; --kult:#E86AA5; --skov:#6FB27A; --kile:#9CCB86; --struct:#E8ECEA;
+  --los1:#4FB874; --los2:#E5C23A; --los3:#F08344; --los4:#E4463D;
+  --sp30:#5FA872; --sp40:#7DC178; --sp50:#E2C24A; --sp60:#F0994B; --sp80:#E36A50; --sp90:#D9557A; --sp110:#C24BA8;
+  --focus:#7C9BFF; --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.45);
+  color-scheme:dark;
+}
+
+/* ---------- leaflet (inlined, 1.9.4) ---------- */
+LEAFLET_CSS_HERE
+.leaflet-container{background:var(--land);font:inherit;outline:none}
+.leaflet-container a{color:var(--new)}
+.leaflet-control-zoom a{background:var(--card);color:var(--ink);border-bottom:1px solid var(--line)}
+.leaflet-bar{border:1px solid var(--line);box-shadow:var(--shadow)}
+.leaflet-control-attribution{background:color-mix(in srgb,var(--card) 80%,transparent);color:var(--ink-3);font-size:10px}
+.leaflet-control-attribution a{color:var(--ink-2)}
+.leaflet-popup-content-wrapper,.leaflet-popup-tip{background:var(--card);color:var(--ink);box-shadow:var(--shadow)}
+.leaflet-popup-content{margin:12px 14px;font:13px/1.45 "Archivo",system-ui,sans-serif;min-width:220px}
+.leaflet-popup-content h4{margin:0 0 4px;font:600 15px/1.2 "Archivo Narrow","Archivo",sans-serif}
+.leaflet-popup-content .kv{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;margin:6px 0 0;font-variant-numeric:tabular-nums}
+.leaflet-popup-content .kv b{font-weight:600}
+.leaflet-popup-content .kv span:nth-child(odd){color:var(--ink-3)}
+.leaflet-popup-content .tag{display:inline-block;padding:1px 6px;border-radius:3px;font:600 11px/16px "Archivo Narrow",sans-serif;letter-spacing:.04em;text-transform:uppercase;margin-right:4px}
+.leaflet-control-scale-line{background:color-mix(in srgb,var(--card) 70%,transparent);color:var(--ink);border-color:var(--ink-2)}
+
+/* ---------- layout ---------- */
+html,body{height:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font:14px/1.5 "Archivo",system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+h1,h2,h3,h4{font-family:"Archivo Narrow","Archivo",system-ui,sans-serif;text-wrap:balance;margin:0}
+.app{display:grid;grid-template-columns:minmax(360px,440px) 1fr;height:100%;min-height:100svh}
+.panel{background:var(--panel);border-right:1px solid var(--line);overflow-y:auto;padding:0 20px 40px;padding-inline:20px}
+.mapwrap{position:relative;min-height:60vh}
+#map{position:absolute;inset:0}
+@media (max-width:900px){
+  .app{grid-template-columns:1fr;grid-template-rows:auto 1fr;height:auto}
+  .mapwrap{order:-1;height:58svh;min-height:360px}
+  .panel{border-right:0;border-top:1px solid var(--line);padding-inline:16px}
+}
+
+/* ---------- panel typography ---------- */
+.masthead{padding-block:18px 10px;border-bottom:1px solid var(--line)}
+.eyebrow{font:600 11px/1 "Archivo Narrow",sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+.masthead h1{font-size:30px;line-height:1;font-weight:700;letter-spacing:-.01em;margin-top:6px}
+.masthead p{margin:8px 0 0;color:var(--ink-2);max-width:60ch}
+.section{padding-block:16px;border-bottom:1px solid var(--line)}
+.section h2{font-size:13px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin-bottom:10px}
+.section h3{font-size:17px;font-weight:600;margin:14px 0 4px}
+.section p{margin:0 0 8px;max-width:64ch}
+.section p+p{margin-top:2px}
+.muted{color:var(--ink-3)}
+.small{font-size:12px}
+.num{font-variant-numeric:tabular-nums}
+details.section{padding-block:0}
+details.section>summary{list-style:none;cursor:pointer;padding-block:14px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+details.section>summary::-webkit-details-marker{display:none}
+details.section>summary h2{margin:0}
+details.section>summary::after{content:"+";font:500 20px/1 "Archivo Narrow",sans-serif;color:var(--ink-3)}
+details.section[open]>summary::after{content:"–"}
+details.section>.body{padding-bottom:18px}
+
+/* ---------- controls ---------- */
+.seg{display:flex;gap:0;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:var(--card)}
+.seg button{flex:1;border:0;background:transparent;color:var(--ink-2);font:600 13px/1 "Archivo Narrow",sans-serif;letter-spacing:.02em;padding:10px 6px;cursor:pointer;border-right:1px solid var(--line)}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.seg button:focus-visible{outline:2px solid var(--focus);outline-offset:-2px}
+.scen{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.scen button{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:var(--radius);padding:8px 6px 7px;cursor:pointer;text-align:left;font-family:"Archivo Narrow",sans-serif}
+.scen button .big{display:block;font-size:20px;font-weight:700;line-height:1;letter-spacing:-.01em}
+.scen button .sm{display:block;font-size:11px;color:var(--ink-3);margin-top:3px;letter-spacing:.03em;text-transform:uppercase}
+.scen button[aria-pressed="true"]{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.scen button:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.row>.seg{flex:1;min-width:160px}
+.toggle{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--ink-2);cursor:pointer}
+.toggle input{accent-color:var(--new)}
+
+/* ---------- KPI ---------- */
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:10px 12px 9px;position:relative;overflow:hidden}
+.kpi .l{font:600 11px/1.2 "Archivo Narrow",sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+.kpi .v{font:700 24px/1.05 "Archivo Narrow",sans-serif;margin-top:6px;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.kpi .v small{font-size:13px;font-weight:500;color:var(--ink-3);margin-left:3px}
+.kpi .alt{font-size:11.5px;color:var(--ink-3);margin-top:3px;font-variant-numeric:tabular-nums}
+.kpi .stripe{position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--line)}
+.kpi.l1 .stripe{background:var(--los1)}.kpi.l2 .stripe{background:var(--los2)}.kpi.l3 .stripe{background:var(--los3)}.kpi.l4 .stripe{background:var(--los4)}
+.pill{display:inline-block;padding:2px 7px;border-radius:999px;font:600 11px/15px "Archivo Narrow",sans-serif;letter-spacing:.05em;text-transform:uppercase;color:#fff}
+.pill.l1{background:var(--los1)}.pill.l2{background:var(--los2);color:#1B1F1E}.pill.l3{background:var(--los3)}.pill.l4{background:var(--los4)}
+
+.callout{border-left:3px solid var(--upg);background:var(--upg-soft);padding:10px 12px;border-radius:0 var(--radius) var(--radius) 0;margin:10px 0;font-size:13px}
+.callout.blue{border-color:var(--new);background:var(--new-soft)}
+.callout b{font-weight:600}
+
+/* ---------- link table ---------- */
+table.links{width:100%;border-collapse:collapse;font-size:12.5px;font-variant-numeric:tabular-nums}
+table.links th{text-align:left;font:600 11px/1.2 "Archivo Narrow",sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);padding:4px 6px 6px;border-bottom:1px solid var(--line)}
+table.links td{padding:6px;border-bottom:1px solid var(--line);vertical-align:middle}
+table.links td.r,table.links th.r{text-align:right}
+table.links tr{cursor:pointer}
+table.links tr:hover td{background:color-mix(in srgb,var(--card) 60%,var(--line))}
+.bar{height:6px;border-radius:3px;background:var(--line);position:relative;min-width:60px}
+.bar i{position:absolute;left:0;top:0;bottom:0;border-radius:3px}
+.bar em{position:absolute;left:calc(100% * 0.85);top:-3px;bottom:-3px;width:1px;background:var(--ink-3)}
+
+/* ---------- measures ---------- */
+.measures{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.measure{display:grid;grid-template-columns:30px 1fr auto;gap:10px;align-items:start;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:9px 10px;cursor:pointer}
+.measure:hover{border-color:var(--ink-3)}
+.measure:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.measure .sym{width:28px;height:28px;display:grid;place-items:center}
+.measure .sym svg{width:26px;height:26px;overflow:visible}
+.measure .t{font:600 14px/1.25 "Archivo Narrow",sans-serif}
+.measure .e{font-size:12.5px;color:var(--ink-2);margin-top:2px}
+.measure .w{font:600 11px/1 "Archivo Narrow",sans-serif;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);padding-top:3px;white-space:nowrap}
+.measure .w.new{color:var(--new)}.measure .w.upg{color:var(--upg)}.measure .w.down{color:var(--down)}.measure .w.cycle{color:var(--cycle)}.measure .w.area{color:var(--area)}.measure .w.warn{color:var(--los4)}
+
+/* ---------- sliders ---------- */
+.sl{display:grid;grid-template-columns:1fr auto;gap:2px 10px;align-items:center;padding:6px 0}
+.sl label{font-size:13px;color:var(--ink-2)}
+.sl output{font:600 13px/1 "Archivo Narrow",sans-serif;font-variant-numeric:tabular-nums;text-align:right;min-width:64px}
+.sl input[type=range]{grid-column:1/-1;width:100%;accent-color:var(--new);margin:0}
+.presets{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}
+.presets button{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:5px 10px;font:600 12px/1 "Archivo Narrow",sans-serif;letter-spacing:.03em;cursor:pointer}
+.presets button[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+
+/* ---------- housing ---------- */
+table.eta{width:100%;border-collapse:collapse;font-size:12.5px;font-variant-numeric:tabular-nums}
+table.eta th{text-align:left;font:600 11px/1.2 "Archivo Narrow",sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);padding:4px 6px 6px;border-bottom:1px solid var(--line)}
+table.eta td{padding:6px;border-bottom:1px solid var(--line);vertical-align:top}
+table.eta td.r,table.eta th.r{text-align:right}
+table.eta tr[data-id]{cursor:pointer}
+table.eta tr[data-id]:hover td{background:color-mix(in srgb,var(--card) 60%,var(--line))}
+table.eta tr.sum td{font-weight:600;background:color-mix(in srgb,var(--card) 70%,var(--line))}
+.etag{display:inline-block;width:22px;height:18px;border-radius:3px;font:700 11px/18px "Archivo Narrow",sans-serif;text-align:center;color:#fff}
+.etag.k75{background:var(--area)}.etag.k10{background:var(--area2)}
+.budget{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:8px 0 10px}
+.budget div{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:8px 10px}
+.budget b{display:block;font:700 18px/1.1 "Archivo Narrow",sans-serif;font-variant-numeric:tabular-nums}
+.budget span{font-size:11px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.06em}
+.lbl.eta{font:700 12px/1.15 "Archivo Narrow",sans-serif;color:var(--ink);background:color-mix(in srgb,var(--card) 88%,transparent);padding:2px 6px;border-radius:3px;border-left:4px solid var(--area);text-shadow:none;text-align:left}
+.lbl.eta.k10{border-left-color:var(--area2)}
+.lbl.eta small{display:block;font-weight:500;color:var(--ink-2);font-size:10.5px}
+
+.lbl.str{font:700 11px/1.1 "Archivo Narrow",sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--skov);text-shadow:0 0 3px var(--land),0 0 3px var(--land)}
+.lbl.str.erhv{color:var(--erhv)}.lbl.str.kile{color:var(--kile)}.lbl.str.vidde{color:var(--ink-3);font-style:italic;letter-spacing:.2em}
+.lbl.node{font:700 11.5px/1.15 "Archivo Narrow",sans-serif;color:var(--ink);background:color-mix(in srgb,var(--card) 90%,transparent);padding:2px 6px;border-radius:3px;border-left:4px solid var(--kult);text-shadow:none;text-align:left;max-width:150px;white-space:normal}
+.lbl.node.center{border-left-color:var(--ink-2)}.lbl.node.kyst{border-left-color:var(--prom)}.lbl.node.park,.lbl.node.natur{border-left-color:var(--kile)}.lbl.node.pr{border-left-color:var(--new)}.lbl.node.rest{border-left-color:var(--upg)}
+.z-lo .lbl.node,.z-lo .lbl.str{display:none}
+.stack{display:grid;gap:6px}
+.stack .it{display:grid;grid-template-columns:30px 1fr;gap:10px;align-items:start;padding:8px 10px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius)}
+.stack .it b{font:600 14px/1.25 "Archivo Narrow",sans-serif;display:block}
+.stack .it span{font-size:12.5px;color:var(--ink-2)}
+.stack .it .sym{width:28px;height:28px;display:grid;place-items:center}
+.stack .it .sym svg{width:26px;height:26px;overflow:visible}
+.lbl.ramme{font:600 10px/1 "Archivo Narrow",sans-serif;color:var(--ink-3);letter-spacing:.04em}
+.z-lo .lbl.ramme,.z-mid 
+.lbl.str{font:700 11px/1.1 "Archivo Narrow",sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--skov);text-shadow:0 0 3px var(--land),0 0 3px var(--land)}
+.lbl.str.erhv{color:var(--erhv)}.lbl.str.kile{color:var(--kile)}.lbl.str.vidde{color:var(--ink-3);font-style:italic;letter-spacing:.2em}
+.lbl.node{font:700 11.5px/1.15 "Archivo Narrow",sans-serif;color:var(--ink);background:color-mix(in srgb,var(--card) 90%,transparent);padding:2px 6px;border-radius:3px;border-left:4px solid var(--kult);text-shadow:none;text-align:left;max-width:150px;white-space:normal}
+.lbl.node.center{border-left-color:var(--ink-2)}.lbl.node.kyst{border-left-color:var(--prom)}.lbl.node.park,.lbl.node.natur{border-left-color:var(--kile)}.lbl.node.pr{border-left-color:var(--new)}.lbl.node.rest{border-left-color:var(--upg)}
+.z-lo .lbl.node,.z-lo .lbl.str{display:none}
+.stack{display:grid;gap:6px}
+.stack .it{display:grid;grid-template-columns:30px 1fr;gap:10px;align-items:start;padding:8px 10px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius)}
+.stack .it b{font:600 14px/1.25 "Archivo Narrow",sans-serif;display:block}
+.stack .it span{font-size:12.5px;color:var(--ink-2)}
+.stack .it .sym{width:28px;height:28px;display:grid;place-items:center}
+.stack .it .sym svg{width:26px;height:26px;overflow:visible}
+.lbl.ramme{display:none}
+
+/* ---------- attention list ---------- */
+ol.attn{margin:0;padding-left:0;list-style:none;counter-reset:a}
+ol.attn li{counter-increment:a;display:grid;grid-template-columns:32px 1fr;gap:8px;padding:9px 0;border-bottom:1px dashed var(--line)}
+ol.attn li::before{content:counter(a,decimal-leading-zero);font:700 18px/1 "Archivo Narrow",sans-serif;color:var(--upg);padding-top:2px}
+ol.attn li b{display:block;font:600 14px/1.3 "Archivo Narrow",sans-serif}
+ol.attn li span{font-size:12.5px;color:var(--ink-2)}
+
+/* ---------- legend ---------- */
+.legend{display:grid;grid-template-columns:1fr;gap:4px}
+.legend h4{font:700 11px/1.2 "Archivo Narrow",sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin:10px 0 4px}
+.lg{display:grid;grid-template-columns:44px 1fr;gap:10px;align-items:center;font-size:12.5px;color:var(--ink-2)}
+.lg svg{width:44px;height:18px;overflow:visible}
+.sources li{font-size:12.5px;color:var(--ink-2);margin-bottom:6px}
+.sources{padding-left:18px;margin:0}
+code{font:12px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;background:var(--line);padding:1px 4px;border-radius:3px}
+
+/* ---------- map overlays ---------- */
+.mapbar{position:absolute;left:10px;top:10px;z-index:800;display:flex;gap:6px;flex-wrap:wrap;max-width:calc(100% - 70px)}
+.mapbar button,.mapbar .chip{border:1px solid var(--line);background:color-mix(in srgb,var(--card) 92%,transparent);color:var(--ink);border-radius:999px;padding:6px 10px;font:600 12px/1 "Archivo Narrow",sans-serif;letter-spacing:.03em;cursor:pointer;box-shadow:var(--shadow)}
+.mapbar button[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.maplegend{position:absolute;right:10px;bottom:28px;z-index:800;background:color-mix(in srgb,var(--card) 94%,transparent);border:1px solid var(--line);border-radius:var(--radius);padding:8px 10px;box-shadow:var(--shadow);max-width:230px;font-size:11.5px;color:var(--ink-2)}
+.maplegend h4{font:700 11px/1 "Archivo Narrow",sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin:0 0 6px}
+.maplegend .lg{grid-template-columns:34px 1fr;gap:8px;font-size:11.5px}
+.maplegend .lg svg{width:34px;height:14px}
+@media (max-width:900px){.maplegend{display:none}}
+
+/* map labels & symbols (divIcons) */
+.lbl{font:500 11px/1.1 "Archivo Narrow",sans-serif;color:var(--ink-2);white-space:nowrap;text-shadow:0 0 3px var(--land),0 0 3px var(--land),0 0 4px var(--land);pointer-events:none;letter-spacing:.02em}
+.lbl.place{font-size:13px;font-weight:700;color:var(--ink);letter-spacing:.06em;text-transform:uppercase}
+.lbl.place.vil{font-size:11px;font-weight:600;letter-spacing:.05em}
+.lbl.sub{font-size:10.5px;color:var(--ink-3)}
+.lbl.kom{font:700 14px/1 "Archivo Narrow",sans-serif;letter-spacing:.3em;color:#8A2E6B;opacity:.7}
+.z-lo .lbl.sub{display:none}
+.z-lo .stn{display:none}
+.z-lo .corr{display:none}
+.lbl.node.kultur{border-left-color:var(--kult);font-size:12.5px}
+.z-xlo .lbl.place.vil,.z-xlo .lbl.node,.z-xlo .lbl.str,.z-xlo .lbl.eta{display:none}
+.lbl.water{color:var(--prom);font-style:italic;font-weight:500}
+.lbl.road{font-size:10.5px;letter-spacing:.06em;text-transform:uppercase}
+.lbl.poi{font-size:11px;color:var(--ink);font-weight:600}
+.lbl.new{color:var(--new);font-weight:700}
+.z-lo .lbl.road,.z-lo .lbl.poi,.z-lo .lbl.sp{display:none}
+.z-mid .lbl.road{display:none}
+.sym{pointer-events:auto}
+.sym svg{display:block;overflow:visible;filter:drop-shadow(0 1px 1px rgba(0,0,0,.25))}
+.roundel{width:22px;height:22px;border-radius:50%;background:#fff;border:3px solid #C22F27;color:#111;font:700 10px/16px "Archivo Narrow",sans-serif;text-align:center;box-shadow:0 1px 2px rgba(0,0,0,.3)}
+.roundel.rec{border-style:dashed}
+.arrow{width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-bottom:11px solid #fff;filter:drop-shadow(0 0 1px rgba(0,0,0,.6))}
+.hidden{display:none}
+.leaflet-interactive.hl{filter:drop-shadow(0 0 6px var(--focus))}
+@media (prefers-reduced-motion:reduce){.leaflet-zoom-anim .leaflet-zoom-animated{transition:none!important}}
+</style>
+
+<div class="app">
+<aside class="panel">
+  <header class="masthead">
+    <div class="eyebrow">Stevns Kommune · Nordstevns · analysenotat</div>
+    <h1>Strøby Egede Trafikatlas</h1>
+    <p>Hvordan trafikken ser ud i dag, hvad der optimalt bør gøres nu, og hvad der skifter, når byen vokser til 5.000, 7.500 og 10.000 indbyggere. Zoom, træk og klik i kortet.</p>
+  </header>
+
+  <section class="section" aria-label="Scenarie">
+    <h2>Scenarie</h2>
+    <div class="scen" id="scen" role="group" aria-label="Vælg scenarie">
+      <button data-s="today" aria-pressed="true"><span class="big">I dag</span><span class="sm">ca. 4.900 indb.</span></button>
+      <button data-s="k5" aria-pressed="false"><span class="big">5.000</span><span class="sm">næste skridt</span></button>
+      <button data-s="k75" aria-pressed="false"><span class="big">7.500</span><span class="sm">omfartsvej m.m.</span></button>
+      <button data-s="k10" aria-pressed="false"><span class="big">10.000</span><span class="sm">fuld udbygning</span></button>
+    </div>
+    <div class="row" style="margin-top:10px">
+      <div class="seg" id="mode" role="group" aria-label="Kortvisning">
+        <button data-m="load" aria-pressed="true">Belastning</button>
+        <button data-m="speed" aria-pressed="false">Fartgrænser</button>
+        <button data-m="net" aria-pressed="false">Vejnet &amp; stier</button>
+        <button data-m="plan" aria-pressed="false">Bystruktur</button>
+      </div>
+      <label class="toggle"><input type="checkbox" id="pm"> Eftermiddag (hjem)</label>
+      <label class="toggle" id="svwrap"><input type="checkbox" id="sv" checked> Statsvej bygget</label>
+    </div>
+  </section>
+
+  <section class="section" aria-label="Nøgletal">
+    <h2 id="kpi-h">Nøgletal · <span id="kpi-scen">I dag</span></h2>
+    <div class="kpis" id="kpis"></div>
+    <div id="calib" class="callout" style="margin-top:10px"></div>
+  </section>
+
+  <section class="section" id="story" aria-label="Analyse"></section>
+
+  <section class="section" aria-label="Belastning pr. strækning">
+    <h2>Morgenspidstimen · strækning for strækning</h2>
+    <p class="small muted">Biler pr. time i spidsretningen (ud af byen om morgenen) mod praktisk kapacitet. Streg ved 85 % = grænsen, hvor kø begynder at vokse. Klik en række for at se den på kortet.</p>
+    <div style="overflow-x:auto"><table class="links" id="linktbl"><thead><tr><th>Strækning</th><th class="r">Biler/t</th><th class="r">Kap.</th><th>Belastning</th></tr></thead><tbody></tbody></table></div>
+  </section>
+
+  <section class="section" aria-label="Tiltag">
+    <h2>Tiltag i dette scenarie</h2>
+    <ul class="measures" id="measures"></ul>
+  </section>
+
+  <section class="section" id="housing" aria-label="Boligarealer">
+    <h2>Boliger og erhverv: hvor og hvor meget</h2>
+    <div id="housing-body"></div>
+  </section>
+
+  <section class="section" id="struct" aria-label="Sammenhæng, natur og byliv">
+    <h2>Sammenhæng, natur og byliv</h2>
+    <div id="struct-body"></div>
+  </section>
+
+  <section class="section" id="check" aria-label="Kontrol af sammenhæng">
+    <h2>Kontrol: hænger det sammen?</h2>
+    <div id="check-body"></div>
+  </section>
+
+  <details class="section" id="assump">
+    <summary><h2>Antagelser &amp; model (justér selv)</h2></summary>
+    <div class="body">
+      <div class="presets" id="presets">
+        <button data-p="thomas" aria-pressed="true">Stresstest: 80 % af alle over 25 år pendler i bil</button>
+        <button data-p="work" aria-pressed="false">80 % af erhvervsaktive 25-64</button>
+        <button data-p="calib" aria-pressed="false">Kalibreret til tællinger</button>
+      </div>
+      <div id="sliders"></div>
+      <p class="small muted" style="margin-top:8px">Modellen er en spidstimemodel for én retning: pendlerbiler = indbyggere × andel 25+ × pendlerandel ÷ personer pr. bil; heraf kører spidstimeandelen i den travleste time. Hertil lægges lokale ærindeture (0,12 bilture pr. husstand i timen) og gennemkørende trafik fra det øvrige Øststevns. Praktisk kapacitet pr. retning: bygennemfart med signalanlæg 950, Kystvejen (6 m) 450, Køgevej 1.200, omfartsvej 1.300, statsvej 1.500, Køge-strækningen (restkapacitet for Stevns-trafik) 800. Belastning = biler ÷ kapacitet.</p>
+    </div>
+  </details>
+
+  <details class="section" id="attn" open>
+    <summary><h2>Vær opmærksom fra start</h2></summary>
+    <div class="body"><ol class="attn" id="attnlist"></ol></div>
+  </details>
+
+  <details class="section" id="legendsec">
+    <summary><h2>Signaturforklaring (nomenklatur)</h2></summary>
+    <div class="body legend" id="legend"></div>
+  </details>
+
+  <details class="section" id="sources">
+    <summary><h2>Kilder &amp; forbehold</h2></summary>
+    <div class="body">
+      <ul class="sources">
+        <li><b>Trafikplan 2025-2029</b>, Stevns Kommune - godkendt KB 20-11-2025, pkt 818 (udkast PMT 04-03-2025 pkt 595; hvidbog PMT 12-08-2025 pkt 677). Kilde til ÅDT &gt;13.000 på Stevnsvej, 4.400 på Kystvejen, sort plet Stevnsvej/Kystvejen (4 uheld 2019-23), signalanlæg, hastigheder og kø-beskrivelsen.</li>
+        <li><b>Ny statsvej til Stevns</b> - KB 14-12-2023 pkt 465 (sag 05.01.45-P20-1-23) og KB 25-06-2024 pkt 566 (PMT 11-06-2024 pkt 516): Stevns anbefaler "Alternativ N justeret"; supplerende miljøkonsekvensvurdering 2027-29, anlæg fra 2030; 597 mio. kr. i Infrastrukturplan 2035. Vejdirektoratets screening (marts 2023): 9.000-12.000 køretøjer/døgn på ny vej, 15-20 % aflastning af Strandvejen, alle linjeføringer krydser Natura 2000 Tryggevælde Ådal.</li>
+        <li><b>Omfartsvej syd om Strøby Egede</b> - anlægsregnskab KB 30-05-2024 pkt 549: 12,7 mio. kr. afsat i budget 2010; Natur- og Miljøklagenævnet afviste i april 2013 pga. rigkær; projektet lukket, da statsvejen blev konkret.</li>
+        <li><b>Kommuneplan 2025</b> (høring, KB 20-11-2025): Vejdirektoratet fik de to principielle linjeføringer for statsvej og omfartsvej genindsat i retningslinjerne.</li>
+        <li><b>Kystvejen Frem</b> - PMT 04-03-2025 pkt 596 (1,0 + 1,5 mio. kr. i 2025-26). <b>Kystsikring</b> - KB 21-05-2026 pkt 160. <b>Visionsplan Strøby Idrætscenter</b> - KB 20-11-2025 pkt 814, EUF 05-05-2026 pkt 55.</li>
+        <li><b>Befolkningsprognose 2026-2035</b>: skoledistrikt Strøby 8.658 (2025) → 8.808 (2035); 25-64-årige falder med 228, 65+ stiger med 436. Bytal for Strøby Egede (ca. 4.900) er afrundet skøn - verificér mod Danmarks Statistik BY1.</li>
+        <li><b>Vejgeometri</b>: OpenStreetMap-bidragydere (ODbL). Linjeføringer for omfartsvej, statsvej, fordelingsvej, sløjfe og boligområder er <b>illustrative</b> - ikke planlagte tracéer.</li>
+        <li><b>Forbehold</b>: Modellen er en skitsemodel til at sammenligne scenarier, ikke en VVM- eller kapacitetsberegning. Pendlerandelen på 80 % af alle over 25 år er en stresstest (den inkluderer pensionister); det kalibrerede sæt rammer Trafikplanens tællinger. Kapaciteter er typiske danske erfaringstal, ikke målte.</li>
+      </ul>
+    </div>
+  </details>
+</aside>
+
+<main class="mapwrap">
+  <div id="map" role="application" aria-label="Kort over Strøby Egede"></div>
+  <div class="mapbar">
+    <button data-v="town" aria-pressed="true">Byen</button>
+    <button data-v="south" aria-pressed="false">Omfartsvej</button>
+    <button data-v="region" aria-pressed="false">Til motorvejen</button>
+    <button data-v="kommuner" aria-pressed="false">Stevns &amp; Køge</button>
+    <label class="chip toggle" style="gap:6px"><input type="checkbox" id="bind"> Bindinger</label>
+    <label class="chip toggle" style="gap:6px"><input type="checkbox" id="rammer"> Kommuneplanrammer</label>
+    <label class="chip toggle" style="gap:6px"><input type="checkbox" id="cyk"> Cykelnet</label>
+  </div>
+  <div class="maplegend" id="maplegend"></div>
+</main>
+</div>

@@ -1,0 +1,7 @@
+# Rå OSM-downloads (hentes med queries i data/queries/)
+osm_*.json
+# Lokale arbejdsfiler
+preview.html
+venv/
+__pycache__/
+.DS_Store
